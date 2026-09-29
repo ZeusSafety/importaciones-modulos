@@ -1,0 +1,7 @@
+nodeLinker: hoisted
+autoInstallPeers: true
+strictPeerDependencies: false
+allowBuilds:
+  core-js: false
+  sharp: true
+  unrs-resolver: true

@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-zeus-azul: #002d5a;
+  --color-zeus-azul-medio: #003b75;
+  --color-zeus-azul-oscuro: #001f3d;
+  --color-zeus-celeste: #e9f1ff;
+  --color-zeus-dorado: #e5a017;
+  --color-zeus-verde: #48a98e;
+  --color-zeus-rojo: #e63946;
+  --color-zeus-fondo: #f7faff;
+  /* Texto de acento: azul Zeus en claro, celeste legible en oscuro. */
+  --color-zeus-tinta: #002d5a;
+  --color-superficie: #ffffff;
+  /* Tono exacto del borde izquierdo de banner-zeus.png, para que la imagen se funda con el fondo. */
+  --color-zeus-banner: #012b7a;
+  --color-cabecera-tabla: #002d5a;
+  --color-cabecera-tabla-texto: #ffffff;
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-poppins), var(--font-inter), system-ui, sans-serif;
+
+  --ease-zeus: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Modo oscuro: se reasignan los tokens en lugar de duplicar clases `dark:` en cada componente.
+ * La escala slate se invierte (texto claro, superficies y bordes oscuros); slate-950 se conserva
+ * porque se usa como velo de los modales.
+ */
+.dark {
+  color-scheme: dark;
+  --color-zeus-azul: #0b4a8f;
+  --color-zeus-azul-medio: #1260b0;
+  --color-zeus-azul-oscuro: #063a73;
+  --color-zeus-celeste: #13294a;
+  --color-zeus-fondo: #0a1322;
+  --color-zeus-tinta: #8cc0ff;
+  --color-superficie: #111c2e;
+  --color-cabecera-tabla: #0c2038;
+  --color-cabecera-tabla-texto: #bcd6f7;
+
+  --color-slate-50: #16233a;
+  --color-slate-100: #1c2b44;
+  --color-slate-200: #26374f;
+  --color-slate-300: #34496a;
+  --color-slate-400: #7488a6;
+  --color-slate-500: #98a8bf;
+  --color-slate-600: #b4c1d3;
+  --color-slate-700: #cbd5e1;
+  --color-slate-800: #e2e8f0;
+  --color-slate-900: #f1f5f9;
+
+  --color-red-50: #3a1519;
+  --color-red-100: #4a1a20;
+  --color-red-200: #6b2129;
+  --color-red-300: #8a2a33;
+  --color-red-600: #f26b6b;
+  --color-red-700: #fca5a5;
+  --color-emerald-50: #0f2e28;
+  --color-emerald-100: #143b33;
+  --color-emerald-200: #1c5446;
+  --color-emerald-300: #237058;
+  --color-emerald-700: #6ee7b7;
+  --color-amber-50: #33260c;
+  --color-amber-700: #fcd34d;
+  --color-violet-50: #251c45;
+  --color-violet-700: #c4b5fd;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-zeus-fondo);
+  color: var(--color-slate-900);
+}
+
+body {
+  transition: background-color 0.3s var(--ease-zeus), color 0.3s var(--ease-zeus);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Línea dorada característica de Zeus bajo las cabeceras de tabla */
+.tabla-zeus thead tr {
+  border-bottom: 3px solid var(--color-zeus-dorado);
+}
+
+.dark .tabla-zeus thead tr {
+  border-bottom-color: rgb(229 160 23 / 0.7);
+}
+
+.tabla-zeus thead th {
+  background: var(--color-cabecera-tabla);
+  color: var(--color-cabecera-tabla-texto);
+  transition: background-color 0.3s var(--ease-zeus), color 0.3s var(--ease-zeus);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.scroll-zeus {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(0 45 90 / 0.35) transparent;
+}
+
+.scroll-zeus::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-zeus::-webkit-scrollbar-thumb {
+  background: rgb(0 45 90 / 0.3);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scroll-zeus::-webkit-scrollbar-thumb:hover {
+  background: rgb(0 45 90 / 0.5);
+  background-clip: padding-box;
+}
+
+/* Partículas del banner: cada una define --duracion, --retraso, --deriva y --opacidad en línea. */
+@keyframes particula-ascender {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.5);
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: var(--opacidad);
+  }
+  100% {
+    transform: translate3d(var(--deriva), -220px, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.particula-banner {
+  position: absolute;
+  bottom: -8px;
+  border-radius: 9999px;
+  opacity: 0;
+  animation: particula-ascender var(--duracion) linear var(--retraso) infinite;
+  will-change: transform, opacity;
+}
+
+/* Insignias de estado resaltadas: halo que late, destello que cruza y punto vivo. --brillo es el color del halo. */
+@keyframes insignia-halo {
+  0% {
+    box-shadow: 0 0 0 0 var(--brillo);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@keyframes insignia-destello {
+  0%,
+  55% {
+    transform: translateX(-130%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(230%) skewX(-20deg);
+  }
+}
+
+@keyframes insignia-latido {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55);
+    opacity: 0.6;
+  }
+}
+
+.insignia-resaltada {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  animation: insignia-halo 2.2s var(--ease-zeus) infinite;
+}
+
+.insignia-resaltada::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  animation: insignia-destello 2.8s ease-in-out infinite;
+}
+
+.insignia-punto {
+  animation: insignia-latido 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
