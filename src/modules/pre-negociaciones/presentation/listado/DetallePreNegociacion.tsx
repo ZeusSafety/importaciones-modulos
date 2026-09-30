@@ -15,10 +15,10 @@ import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
 import type { PreNegociacionDto } from "../../application/dto";
 import { etiquetaPreNegociacion, type EstadoPreNegociacion } from "../../domain/valores";
-import { ListaArchivos } from "../archivos/ListaArchivos";
 import { BanderaPais } from "../BanderaPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
-import { EstadoCotizacion, LineaTiempoCotizacion } from "./LineaTiempoCotizacion";
+import { CarruselProveedores } from "./CarruselProveedores";
+import { EstadoCotizacion } from "./LineaTiempoCotizacion";
 
 const DESCRIPCION_ESTADO: Record<EstadoPreNegociacion, string> = {
   "EN PROCESO": "La negociación sigue abierta.",
@@ -47,8 +47,6 @@ interface PropsDetalle {
 }
 
 export function DetallePreNegociacion({ preNegociacion: p, alEditar }: PropsDetalle) {
-  const archivos = p.cotizaciones.flatMap((c) => c.contactos.flatMap((contacto) => contacto.archivos));
-
   return (
     <div className="flex h-full flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
@@ -96,9 +94,9 @@ export function DetallePreNegociacion({ preNegociacion: p, alEditar }: PropsDeta
             <Dato icono={<HiOutlineMapPin />} etiqueta="Puerto">
               {p.puerto}
             </Dato>
-            <Dato icono={<HiOutlineBuildingStorefront />} etiqueta="Proveedores y estado de su cotización" ancho>
+            <Dato icono={<HiOutlineBuildingStorefront />} etiqueta="Proveedores y estado de su negociación" ancho>
               {p.cotizaciones.length === 0 ? (
-                <span className="font-normal text-slate-400">Sin cotizaciones registradas</span>
+                <span className="font-normal text-slate-400">Sin negociaciones registradas</span>
               ) : (
                 <ul className="mt-1 divide-y divide-slate-100">
                   {p.cotizaciones.map((c) => (
@@ -121,25 +119,10 @@ export function DetallePreNegociacion({ preNegociacion: p, alEditar }: PropsDeta
 
         {p.cotizaciones.length > 0 && (
           <section>
-            <TituloBloque>Cotizaciones y contactos</TituloBloque>
-            <div className="space-y-4">
-              {p.cotizaciones.map((c, indice) => (
-                <LineaTiempoCotizacion key={c.id} cotizacion={c} numero={indice + 1} />
-              ))}
-            </div>
+            <TituloBloque>Negociaciones y contactos</TituloBloque>
+            <CarruselProveedores key={p.id} cotizaciones={p.cotizaciones} />
           </section>
         )}
-
-        <section>
-          <TituloBloque>Archivos ({archivos.length})</TituloBloque>
-          {archivos.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-center text-xs text-slate-500">
-              No se han subido archivos en los contactos de esta pre-negociación.
-            </p>
-          ) : (
-            <ListaArchivos archivos={archivos} />
-          )}
-        </section>
       </div>
     </div>
   );

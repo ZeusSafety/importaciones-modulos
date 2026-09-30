@@ -93,7 +93,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           <TarjetaIndicador
             acento="verde"
             icono={<HiOutlineInboxStack />}
-            etiqueta="Cotizaciones"
+            etiqueta="Negociaciones"
             valor={totales.cotizaciones}
             pie={{ tipo: "distribucion", series: seriesCotizaciones }}
           />
@@ -104,14 +104,14 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             icono={<HiOutlineBuildingStorefront />}
             etiqueta="Proveedores cotizados"
             valor={totales.proveedores}
-            pie={{ tipo: "texto", resaltado: cotizacionesPorProveedor, detalle: "cotizaciones por proveedor" }}
+            pie={{ tipo: "texto", resaltado: cotizacionesPorProveedor, detalle: "negociaciones por proveedor" }}
           />
         </Aparicion>
         <Aparicion orden={4}>
           <TarjetaIndicador
             acento="violeta"
             icono={<HiOutlineClipboardDocumentCheck />}
-            etiqueta="Requerimientos logística"
+            etiqueta="Requerimientos importación"
             valor={totales.requerimientos}
             pie={{ tipo: "texto", resaltado: "REG_LOG", detalle: "formatos registrados" }}
           />
@@ -131,7 +131,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           </TarjetaSeccion>
         </Aparicion>
         <Aparicion orden={7}>
-          <TarjetaSeccion altoCompleto icono={<HiOutlineInboxStack />} titulo="Cotizaciones" subtitulo="Resultado por proveedor">
+          <TarjetaSeccion altoCompleto icono={<HiOutlineInboxStack />} titulo="Negociaciones" subtitulo="Resultado por proveedor">
             <GraficoMedidor series={seriesCotizaciones} destacada={aceptadas} etiquetaDestacada="Tasa de aceptación" />
           </TarjetaSeccion>
         </Aparicion>
@@ -151,7 +151,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             }
           >
             {panel.ultimasPreNegociaciones.length === 0 ? (
-              <EstadoVacio icono={<HiOutlineDocumentCurrencyDollar />} titulo="Sin pre-negociaciones" descripcion="Registre la primera desde el módulo Cotizaciones." />
+              <EstadoVacio icono={<HiOutlineDocumentCurrencyDollar />} titulo="Sin pre-negociaciones" descripcion="Registre la primera desde el módulo Negociación." />
             ) : (
               <ContenedorTabla>
                 <div className="overflow-x-auto">

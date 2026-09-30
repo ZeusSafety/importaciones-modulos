@@ -20,7 +20,6 @@ interface PropsMaestroDetalle {
   listaVisible: boolean;
   alSeleccionar: (preNegociacion: PreNegociacionDto) => void;
   alEditar: (preNegociacion: PreNegociacionDto) => void;
-  alVolver: () => void;
 }
 
 export function VistaMaestroDetalle({
@@ -29,7 +28,6 @@ export function VistaMaestroDetalle({
   listaVisible,
   alSeleccionar,
   alEditar,
-  alVolver,
 }: PropsMaestroDetalle) {
   const [pagina, setPagina] = useState(() => {
     const posicion = preNegociaciones.findIndex((p) => p.id === seleccionada.id);
@@ -64,8 +62,7 @@ export function VistaMaestroDetalle({
                     <button
                       type="button"
                       aria-pressed={activa}
-                      title={activa ? "Pulse de nuevo para volver a la tabla" : undefined}
-                      onClick={() => (activa ? alVolver() : alSeleccionar(p))}
+                      onClick={() => alSeleccionar(p)}
                       className={`relative w-full px-4 py-3 text-left transition-colors ${activa ? "bg-zeus-celeste/70 hover:bg-zeus-celeste" : "hover:bg-slate-50"}`}
                     >
                       {activa && <motion.span layoutId="marcador-pre-negociacion" className="absolute inset-y-0 left-0 w-1 bg-zeus-azul" />}

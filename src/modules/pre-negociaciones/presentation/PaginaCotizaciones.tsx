@@ -12,7 +12,7 @@ import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { BotonDescarga } from "@/modules/shared/presentation/ui/BotonDescarga";
 import { useNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
 import { ResultadoConsulta } from "@/modules/shared/presentation/ui/ResultadoConsulta";
-import { EncabezadoPagina } from "@/modules/shared/presentation/ui/Superficies";
+import { EncabezadoPagina, EstadoVacio } from "@/modules/shared/presentation/ui/Superficies";
 import type { PreNegociacionDto } from "../application/dto";
 import { paisesFueraDelCatalogo } from "../domain/origenesImportacion";
 import { apiPreNegociaciones } from "./apiPreNegociaciones";
@@ -20,7 +20,6 @@ import { reportePreNegociaciones } from "./exportacion/reportePreNegociaciones";
 import { ModalFormularioPreNegociacion, type ModoFormulario } from "./formulario/ModalFormularioPreNegociacion";
 import { aplicarFiltros, FILTROS_INICIALES, type FiltrosPreNegociaciones } from "./listado/filtrosPreNegociaciones";
 import { PanelFiltrosPreNegociaciones } from "./listado/PanelFiltrosPreNegociaciones";
-import { TablaPreNegociaciones } from "./listado/TablaPreNegociaciones";
 import { VistaMaestroDetalle } from "./listado/VistaMaestroDetalle";
 
 export function PaginaCotizaciones() {
@@ -73,8 +72,8 @@ export function PaginaCotizaciones() {
       <Aparicion orden={0}>
         <EncabezadoPagina
           icono={<HiOutlineDocumentCurrencyDollar />}
-          titulo="Cotizaciones"
-          descripcion="Pre-negociaciones con proveedores: tipo de carga, contactos, archivos y estados."
+          titulo="Negociación"
+          descripcion="Negociaciones con proveedores: tipo de carga, contactos, archivos y estados."
           acciones={
             <>
               <BotonDescarga
@@ -102,7 +101,7 @@ export function PaginaCotizaciones() {
 
       <ResultadoConsulta estado={estado} textoCargando="Cargando pre-negociaciones…" alReintentar={recargar}>
         {(preNegociaciones) => {
-          const seleccionada = preNegociaciones.find((p) => p.id === seleccionadaId);
+          const seleccionada = filtradas.find((p) => p.id === seleccionadaId) ?? filtradas[0];
           return (
             <div className="space-y-6">
               <Aparicion orden={1}>
@@ -153,30 +152,21 @@ export function PaginaCotizaciones() {
                     </div>
                   </header>
 
-                  <AnimatePresence mode="wait" initial={false}>
-                    {seleccionada ? (
-                      <motion.div key="detalle" exit={{ opacity: 0, transition: { duration: 0.16 } }}>
-                        <VistaMaestroDetalle
-                          preNegociaciones={filtradas}
-                          seleccionada={seleccionada}
-                          listaVisible={listaVisible}
-                          alSeleccionar={seleccionar}
-                          alEditar={(p) => setModo({ tipo: "edicion", apertura: Date.now(), preNegociacion: p })}
-                          alVolver={() => setSeleccionadaId(null)}
-                        />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="tabla"
-                        className="p-4 sm:p-5"
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-                        exit={{ opacity: 0, transition: { duration: 0.16 } }}
-                      >
-                        <TablaPreNegociaciones preNegociaciones={filtradas} alSeleccionar={seleccionar} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {seleccionada ? (
+                    <VistaMaestroDetalle
+                      preNegociaciones={filtradas}
+                      seleccionada={seleccionada}
+                      listaVisible={listaVisible}
+                      alSeleccionar={seleccionar}
+                      alEditar={(p) => setModo({ tipo: "edicion", apertura: Date.now(), preNegociacion: p })}
+                    />
+                  ) : (
+                    <EstadoVacio
+                      icono={<HiOutlineDocumentCurrencyDollar />}
+                      titulo="No hay negociaciones para mostrar"
+                      descripcion="Pulse «Registrar» para crear la primera negociación o ajuste los filtros."
+                    />
+                  )}
                 </section>
               </Aparicion>
             </div>

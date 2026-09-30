@@ -108,7 +108,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
       abierto={abierto}
       alCerrar={alCerrar}
       titulo={modo.tipo === "registro" ? "Registrar pre-negociación" : `Editar ${etiqueta}`}
-      subtitulo="Complete los datos generales, añada las cotizaciones de cada proveedor y guarde."
+      subtitulo="Complete los datos generales, añada la negociación de cada proveedor y guarde."
       icono={<HiOutlineDocumentCurrencyDollar />}
       tamano="completo"
       pie={
@@ -184,17 +184,17 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
         <section>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-display text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-              Cotizaciones ({formulario.cotizaciones.length})
+              Negociaciones ({formulario.cotizaciones.length})
             </h3>
             <Boton variante="advertencia" tamano="chico" icono={<HiOutlinePlus />} onClick={() => despachar({ tipo: "agregarCotizacion" })}>
-              Añadir cotización
+              Añadir negociación
             </Boton>
           </div>
 
           {formulario.cotizaciones.length === 0 && (
             <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm text-slate-500">
               <HiOutlineInboxStack className="h-6 w-6 text-slate-400" />
-              Aún no hay cotizaciones. Pulse «Añadir cotización» para registrar un proveedor y sus contactos.
+              Aún no hay negociaciones. Pulse «Añadir negociación» para registrar un proveedor y sus contactos.
             </div>
           )}
 

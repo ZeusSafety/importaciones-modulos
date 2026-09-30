@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { HiOutlineCheckBadge, HiOutlineDocumentText, HiOutlineEye, HiOutlineInboxStack } from "react-icons/hi2";
+import { FaFilePdf } from "react-icons/fa6";
+import { HiOutlineCheckBadge, HiOutlineDocumentText, HiOutlineInboxStack } from "react-icons/hi2";
 import { formatearFechaHora } from "@/modules/shared/domain/fechas";
 import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
 import { Paginacion, paginar } from "@/modules/shared/presentation/ui/Paginacion";
@@ -24,7 +25,7 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
   return (
     <TarjetaSeccion
       icono={<HiOutlineInboxStack />}
-      titulo="Requerimientos logística registrados"
+      titulo="Requerimientos de importación registrados"
       subtitulo={`${requerimientos.length} registro(s) · ${pendientes} pendiente(s) de aprobación`}
     >
       {requerimientos.length === 0 ? (
@@ -38,9 +39,9 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                   <th className="px-5 py-3">Fecha de registro</th>
                   <th className="px-5 py-3">N° requerimiento</th>
                   <th className="px-5 py-3">Responsable</th>
-                  <th className="px-5 py-3 text-center">Estado</th>
-                  <th className="px-5 py-3">Aprobación</th>
                   <th className="px-5 py-3 text-center">Archivo</th>
+                  <th className="px-5 py-3">Aprobación</th>
+                  <th className="px-5 py-3 text-center">Estado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -54,11 +55,14 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                     </td>
                     <td className="px-5 py-3 font-medium text-slate-800">{requerimiento.responsable}</td>
                     <td className="px-5 py-3 text-center">
-                      {requerimiento.aprobacion === null ? (
-                        <Insignia tono="advertencia" texto="Pendiente" resaltada />
-                      ) : (
-                        <Insignia tono="exito" texto="Aprobado" resaltada />
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => alVer(requerimiento)}
+                        title="Ver y descargar el PDF"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100 hover:shadow-sm"
+                      >
+                        <FaFilePdf className="h-4 w-4" /> {requerimiento.codigo}.pdf
+                      </button>
                     </td>
                     <td className="px-5 py-3">
                       {requerimiento.aprobacion === null ? (
@@ -77,14 +81,11 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                       )}
                     </td>
                     <td className="px-5 py-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => alVer(requerimiento)}
-                        title="Ver y descargar el PDF"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100 hover:shadow-sm"
-                      >
-                        <HiOutlineEye className="h-4 w-4" /> {requerimiento.codigo}.pdf
-                      </button>
+                      {requerimiento.aprobacion === null ? (
+                        <Insignia tono="advertencia" texto="Pendiente" resaltada />
+                      ) : (
+                        <Insignia tono="exito" texto="Aprobado" resaltada />
+                      )}
                     </td>
                   </tr>
                 ))}

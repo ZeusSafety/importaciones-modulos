@@ -1,8 +1,9 @@
-import { HiOutlineChatBubbleBottomCenterText, HiOutlineClock, HiOutlinePaperClip } from "react-icons/hi2";
+import { HiOutlineChatBubbleBottomCenterText, HiOutlineClock } from "react-icons/hi2";
 import { formatearFechaHora } from "@/modules/shared/domain/fechas";
 import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
 import type { PreNegociacionDto } from "../../application/dto";
 import { etiquetaContacto } from "../../domain/reglasContacto";
+import { ListaArchivos } from "../archivos/ListaArchivos";
 import { TEXTO_COTIZACION_SIN_ESTADO, TONO_ESTADO_COTIZACION } from "../tonosEstado";
 
 type CotizacionDto = PreNegociacionDto["cotizaciones"][number];
@@ -21,7 +22,7 @@ export function LineaTiempoCotizacion({ cotizacion, numero }: { cotizacion: Coti
           {numero}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Cotización {numero}</p>
+          <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Negociación {numero}</p>
           <p className="truncate font-display text-sm font-bold text-slate-900">{cotizacion.proveedor}</p>
         </div>
         <span className="rounded-full border border-slate-200 bg-superficie px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
@@ -69,10 +70,9 @@ export function LineaTiempoCotizacion({ cotizacion, numero }: { cotizacion: Coti
                   <p className="mt-2 text-[11px] italic text-slate-400">Sin observaciones</p>
                 )}
                 {contacto.archivos.length > 0 && (
-                  <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-superficie px-2 py-0.5 text-[11px] font-semibold text-zeus-tinta ring-1 ring-zeus-azul/20">
-                    <HiOutlinePaperClip className="h-3.5 w-3.5" />
-                    {contacto.archivos.length} archivo(s)
-                  </span>
+                  <div className="mt-2.5">
+                    <ListaArchivos archivos={contacto.archivos} />
+                  </div>
                 )}
               </div>
             </li>
