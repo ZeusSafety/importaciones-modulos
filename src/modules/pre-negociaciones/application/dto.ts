@@ -12,6 +12,7 @@ const esquemaContacto = z.object({
 const esquemaCotizacion = z.object({
   id: z.uuid(),
   proveedor: z.string(),
+  productos: z.string(),
   estado: z.enum(ESTADOS_COTIZACION).nullable(),
   contactos: z.array(esquemaContacto).min(1, "Cada cotización necesita al menos un contacto."),
 });

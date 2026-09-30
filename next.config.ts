@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     root: path.resolve("."),
   },
   serverExternalPackages: ["jspdf", "jspdf-autotable"],
+  outputFileTracingIncludes: {
+    "/api/requerimientos-logistica/[id]/pdf": ["./public/images/logo-zeus-safety-blanco.png"],
+  },
 };
 
 export default nextConfig;

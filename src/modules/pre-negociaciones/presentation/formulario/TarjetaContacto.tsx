@@ -1,9 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HiOutlineChatBubbleLeftRight, HiOutlineClock, HiOutlineLockClosed, HiOutlinePencilSquare } from "react-icons/hi2";
+import { useId } from "react";
+import { HiOutlineChatBubbleLeftRight, HiOutlineClock, HiOutlineLockClosed } from "react-icons/hi2";
 import { formatearFechaHora } from "@/modules/shared/domain/fechas";
 import { AreaTextoMayusculas, Campo } from "@/modules/shared/presentation/ui/Formulario";
+import { SelectorFechaHora } from "@/modules/shared/presentation/ui/SelectorFechaHora";
 import { etiquetaContacto } from "../../domain/reglasContacto";
 import { CargadorArchivos } from "../archivos/CargadorArchivos";
 import { ListaArchivos } from "../archivos/ListaArchivos";
@@ -19,19 +21,9 @@ interface PropsTarjetaContacto {
 }
 
 function FechaContacto({ contacto, alCambiar }: { contacto: ContactoFormulario; alCambiar: (valorLocal: string) => void }) {
+  const id = useId();
   if (contacto.fecha.tipo === "editable") {
-    return (
-      <label className="flex items-center gap-2 rounded-lg border border-zeus-dorado/40 bg-amber-50/60 px-2.5 py-1.5">
-        <HiOutlinePencilSquare className="h-4 w-4 shrink-0 text-amber-600" />
-        <input
-          type="datetime-local"
-          value={contacto.fecha.valorLocal}
-          onChange={(evento) => alCambiar(evento.target.value)}
-          className="bg-transparent text-xs font-semibold text-slate-800 outline-none"
-          aria-label="Fecha y hora del contacto"
-        />
-      </label>
-    );
+    return <SelectorFechaHora id={id} valor={contacto.fecha.valorLocal} alCambiar={alCambiar} />;
   }
   return (
     <span className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-600">

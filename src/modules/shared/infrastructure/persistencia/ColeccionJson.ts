@@ -1,6 +1,7 @@
 import "server-only";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { ErrorAlmacenamiento } from "../../domain/errores";
 import { rutasAlmacenamiento } from "./rutasAlmacenamiento";
 
 type Cerrojo = Promise<unknown>;
@@ -69,13 +70,31 @@ export class ColeccionJson<T> {
   }
 
   private async escribirArchivo(elementos: T[]): Promise<void> {
-    await mkdir(path.dirname(this.rutaArchivo), { recursive: true });
-    const temporal = `${this.rutaArchivo}.${process.pid}.tmp`;
-    await writeFile(temporal, JSON.stringify(elementos, null, 2), "utf-8");
-    await rename(temporal, this.rutaArchivo);
+    try {
+      await mkdir(path.dirname(this.rutaArchivo), { recursive: true });
+      const temporal = `${this.rutaArchivo}.${process.pid}.tmp`;
+      await writeFile(temporal, JSON.stringify(elementos, null, 2), "utf-8");
+      await rename(temporal, this.rutaArchivo);
+    } catch (error) {
+      if (esDiscoDeSoloLectura(error)) {
+        throw new ErrorAlmacenamiento(
+          "No se pudo guardar en el servidor publicado. Vercel no permite escribir archivos en su disco; en su computadora el registro sí se guarda.",
+        );
+      }
+      throw error;
+    }
   }
 }
 
+function codigoDeSistema(error: unknown): string | undefined {
+  return error instanceof Error && "code" in error && typeof error.code === "string" ? error.code : undefined;
+}
+
 function esArchivoInexistente(error: unknown): boolean {
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
+  return codigoDeSistema(error) === "ENOENT";
+}
+
+function esDiscoDeSoloLectura(error: unknown): boolean {
+  const codigo = codigoDeSistema(error);
+  return codigo === "EROFS" || codigo === "EPERM" || codigo === "EACCES" || (process.env.VERCEL === "1" && codigo === "ENOENT");
 }

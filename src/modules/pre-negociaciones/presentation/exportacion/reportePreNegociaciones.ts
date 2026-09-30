@@ -39,7 +39,9 @@ export function reportePreNegociaciones(preNegociaciones: readonly PreNegociacio
         p.productos,
         p.pais,
         p.puerto,
-        p.cotizaciones.length === 0 ? "—" : p.cotizaciones.map((c) => c.proveedor).join(", "),
+        p.cotizaciones.length === 0
+          ? "—"
+          : p.cotizaciones.map((c) => (c.productos === "" ? c.proveedor : `${c.proveedor} (${c.productos})`)).join(", "),
         p.registradoPor,
         p.estado,
       ],

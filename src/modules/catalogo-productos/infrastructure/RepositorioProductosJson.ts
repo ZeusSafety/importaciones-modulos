@@ -1,7 +1,6 @@
 import "server-only";
-import { readFile } from "node:fs/promises";
 import { z } from "zod";
-import { rutasAlmacenamiento } from "@/modules/shared/infrastructure/persistencia/rutasAlmacenamiento";
+import catalogo from "../../../../data/catalogo-productos.json";
 import type { Producto } from "../domain/Producto";
 import type { RepositorioProductos } from "../domain/RepositorioProductos";
 
@@ -16,7 +15,6 @@ const esquemaCatalogo = z.array(
 
 export class RepositorioProductosJson implements RepositorioProductos {
   async listar(): Promise<Producto[]> {
-    const contenido = await readFile(rutasAlmacenamiento.catalogoProductos, "utf-8");
-    return esquemaCatalogo.parse(JSON.parse(contenido));
+    return esquemaCatalogo.parse(catalogo);
   }
 }

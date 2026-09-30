@@ -7,6 +7,7 @@ import { Campo, EntradaTexto } from "@/modules/shared/presentation/ui/Formulario
 import { Selector } from "@/modules/shared/presentation/ui/Selector";
 import { ESTADOS_COTIZACION } from "../../domain/valores";
 import { TONO_ESTADO_COTIZACION } from "../tonosEstado";
+import { CampoProductosProveedor } from "./CampoProductosProveedor";
 import type { CotizacionFormulario } from "./modeloFormulario";
 import { TarjetaContacto } from "./TarjetaContacto";
 import type { DespacharFormulario } from "./useFormularioPreNegociacion";
@@ -63,17 +64,23 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
       </header>
 
       <div className="space-y-4 p-4">
-        <Campo etiqueta="Proveedor">
-          {(id) => (
-            <EntradaTexto
-              id={id}
-              mayusculas
-              valor={cotizacion.proveedor}
-              alCambiar={(valor) => despachar({ tipo: "proveedor", cotizacionId, valor })}
-              placeholder="NOMBRE DEL PROVEEDOR"
-            />
-          )}
-        </Campo>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Campo etiqueta="Proveedor">
+            {(id) => (
+              <EntradaTexto
+                id={id}
+                mayusculas
+                valor={cotizacion.proveedor}
+                alCambiar={(valor) => despachar({ tipo: "proveedor", cotizacionId, valor })}
+                placeholder="NOMBRE DEL PROVEEDOR"
+              />
+            )}
+          </Campo>
+          <CampoProductosProveedor
+            valor={cotizacion.productos}
+            alCambiar={(valor) => despachar({ tipo: "productosProveedor", cotizacionId, valor })}
+          />
+        </div>
 
         <div className="space-y-3">
           <AnimatePresence initial={false}>

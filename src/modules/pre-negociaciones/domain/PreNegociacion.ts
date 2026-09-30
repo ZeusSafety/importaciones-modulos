@@ -25,6 +25,8 @@ export interface ContactoPrimitivos {
 export interface CotizacionPrimitivos {
   readonly id: string;
   readonly proveedor: string;
+  /** Productos que se negocian con este proveedor. */
+  readonly productos: string;
   readonly estado: EstadoCotizacion | null;
   readonly contactos: ContactoPrimitivos[];
 }
@@ -55,6 +57,7 @@ export interface DatosContacto {
 export interface DatosCotizacion {
   readonly id: string;
   readonly proveedor: string;
+  readonly productos: string;
   readonly estado: EstadoCotizacion | null;
   readonly contactos: DatosContacto[];
 }
@@ -119,6 +122,7 @@ function construirCotizaciones(
     return {
       id: cotizacion.id,
       proveedor: textoMayusculasRequerido(`PROVEEDOR de la cotización ${indiceCotizacion + 1}`, cotizacion.proveedor),
+      productos: textoMayusculasRequerido(`PRODUCTOS de la cotización ${indiceCotizacion + 1}`, cotizacion.productos),
       estado: cotizacion.estado,
       contactos: cotizacion.contactos.map((contacto, indiceContacto) => {
         const orden = indiceContacto + 1;
@@ -165,7 +169,13 @@ export class PreNegociacion {
   }
 
   static desdePrimitivos(primitivos: PreNegociacionPrimitivos): PreNegociacion {
-    return new PreNegociacion(primitivos);
+    return new PreNegociacion({
+      ...primitivos,
+      cotizaciones: primitivos.cotizaciones.map((cotizacion) => ({
+        ...cotizacion,
+        productos: typeof cotizacion.productos === "string" ? cotizacion.productos : "",
+      })),
+    });
   }
 
   static siguienteNumero(numerosExistentes: number[]): number {

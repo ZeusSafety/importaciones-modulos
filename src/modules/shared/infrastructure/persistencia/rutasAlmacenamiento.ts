@@ -6,6 +6,5 @@ const RAIZ_ALMACENAMIENTO = path.join(process.cwd(), "storage");
 export const rutasAlmacenamiento = {
   datos: path.join(RAIZ_ALMACENAMIENTO, "datos"),
   archivos: path.join(RAIZ_ALMACENAMIENTO, "archivos"),
-  catalogoProductos: path.join(process.cwd(), "data", "catalogo-productos.json"),
   logoZeus: path.join(process.cwd(), "public", "images", "logo-zeus-safety-blanco.png"),
 } as const;

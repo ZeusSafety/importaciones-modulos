@@ -22,6 +22,7 @@ type Accion =
   | { tipo: "agregarCotizacion" }
   | { tipo: "quitarCotizacion"; cotizacionId: string }
   | { tipo: "proveedor"; cotizacionId: string; valor: string }
+  | { tipo: "productosProveedor"; cotizacionId: string; valor: string }
   | { tipo: "estadoCotizacion"; cotizacionId: string; valor: EstadoCotizacion }
   | { tipo: "agregarContacto"; cotizacionId: string }
   | { tipo: "quitarUltimoContacto"; cotizacionId: string }
@@ -73,6 +74,8 @@ function reductor(estado: FormularioPreNegociacion, accion: Accion): FormularioP
       return { ...estado, cotizaciones: estado.cotizaciones.filter((c) => c.id !== accion.cotizacionId) };
     case "proveedor":
       return actualizarCotizacion(estado, accion.cotizacionId, (c) => ({ ...c, proveedor: accion.valor }));
+    case "productosProveedor":
+      return actualizarCotizacion(estado, accion.cotizacionId, (c) => ({ ...c, productos: accion.valor }));
     case "estadoCotizacion":
       return actualizarCotizacion(estado, accion.cotizacionId, (c) => ({ ...c, estado: accion.valor }));
     case "agregarContacto":

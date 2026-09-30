@@ -23,7 +23,14 @@ export function LineaTiempoCotizacion({ cotizacion, numero }: { cotizacion: Coti
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Negociación {numero}</p>
-          <p className="truncate font-display text-sm font-bold text-slate-900">{cotizacion.proveedor}</p>
+          <div className="flex min-w-0 items-baseline gap-2">
+            <p className="truncate font-display text-sm font-bold text-slate-900">{cotizacion.proveedor}</p>
+            {cotizacion.productos ? (
+              <p className="truncate text-xs font-semibold text-zeus-tinta" title={cotizacion.productos}>
+                {cotizacion.productos}
+              </p>
+            ) : null}
+          </div>
         </div>
         <span className="rounded-full border border-slate-200 bg-superficie px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
           {cotizacion.contactos.length} contacto(s)

@@ -23,6 +23,7 @@ export interface ContactoFormulario {
 export interface CotizacionFormulario {
   readonly id: string;
   readonly proveedor: string;
+  readonly productos: string;
   readonly estado: EstadoCotizacion | "";
   readonly contactos: readonly ContactoFormulario[];
 }
@@ -62,6 +63,7 @@ export function formularioDesde(dto: PreNegociacionDto): FormularioPreNegociacio
     cotizaciones: dto.cotizaciones.map((cotizacion) => ({
       id: cotizacion.id,
       proveedor: cotizacion.proveedor,
+      productos: cotizacion.productos,
       estado: cotizacion.estado === null ? "" : cotizacion.estado,
       contactos: cotizacion.contactos.map((contacto) => ({
         id: contacto.id,
@@ -87,7 +89,7 @@ export function nuevoContacto(orden: number): ContactoFormulario {
 }
 
 export function nuevaCotizacion(): CotizacionFormulario {
-  return { id: crypto.randomUUID(), proveedor: "", estado: "", contactos: [nuevoContacto(1)] };
+  return { id: crypto.randomUUID(), proveedor: "", productos: "", estado: "", contactos: [nuevoContacto(1)] };
 }
 
 type ResultadoConversion =
@@ -102,7 +104,8 @@ export function convertirAGuardar(formulario: FormularioPreNegociacion): Resulta
   if (formulario.puerto.trim() === "") errores.push("Indique el PUERTO.");
   if (formulario.registradoPor.trim() === "") errores.push("Ingrese REGISTRADO POR.");
   formulario.cotizaciones.forEach((cotizacion, indice) => {
-    if (cotizacion.proveedor.trim() === "") errores.push(`Ingrese el PROVEEDOR de la cotización ${indice + 1}.`);
+    if (cotizacion.proveedor.trim() === "") errores.push(`Ingrese el PROVEEDOR de la negociación ${indice + 1}.`);
+    if (cotizacion.productos.trim() === "") errores.push(`Ingrese los PRODUCTOS de la negociación ${indice + 1}.`);
     cotizacion.contactos.forEach((contacto, indiceContacto) => {
       if (contacto.fecha.tipo === "editable" && contacto.fecha.valorLocal === "") {
         errores.push(`Ingrese la fecha del contacto ${indiceContacto + 1} de la cotización ${indice + 1}.`);
@@ -123,6 +126,7 @@ export function convertirAGuardar(formulario: FormularioPreNegociacion): Resulta
       cotizaciones: formulario.cotizaciones.map((cotizacion) => ({
         id: cotizacion.id,
         proveedor: cotizacion.proveedor.trim(),
+        productos: cotizacion.productos.trim(),
         estado: cotizacion.estado === "" ? null : cotizacion.estado,
         contactos: cotizacion.contactos.map((contacto) => ({
           id: contacto.id,

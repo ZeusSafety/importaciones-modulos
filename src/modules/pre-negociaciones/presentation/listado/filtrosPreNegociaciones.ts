@@ -45,7 +45,7 @@ function coincideBusqueda(preNegociacion: PreNegociacionDto, termino: string): b
     preNegociacion.pais,
     preNegociacion.puerto,
     preNegociacion.estado,
-    ...preNegociacion.cotizaciones.map((c) => c.proveedor),
+    ...preNegociacion.cotizaciones.flatMap((c) => [c.proveedor, c.productos]),
   ];
   return campos.some((campo) => normalizarBusqueda(campo).includes(buscado));
 }

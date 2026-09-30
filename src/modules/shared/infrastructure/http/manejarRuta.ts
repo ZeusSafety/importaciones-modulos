@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import {
+  ErrorAlmacenamiento,
   ErrorConflicto,
   ErrorNoEncontrado,
   ErrorValidacion,
@@ -27,6 +28,7 @@ export async function manejarRuta(accion: () => Promise<Response>): Promise<Resp
     if (error instanceof ErrorValidacion) return responderError(400, error.message, []);
     if (error instanceof ErrorNoEncontrado) return responderError(404, error.message, []);
     if (error instanceof ErrorConflicto) return responderError(409, error.message, []);
+    if (error instanceof ErrorAlmacenamiento) return responderError(500, error.message, []);
 
     console.error(error);
     return responderError(500, "Ocurrió un error interno en el servidor.", []);

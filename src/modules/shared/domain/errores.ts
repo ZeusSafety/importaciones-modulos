@@ -10,3 +10,5 @@ export class ErrorValidacion extends ErrorDominio {}
 export class ErrorNoEncontrado extends ErrorDominio {}
 
 export class ErrorConflicto extends ErrorDominio {}
+
+export class ErrorAlmacenamiento extends ErrorDominio {}
