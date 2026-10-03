@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FaFileExcel, FaFilePdf } from "react-icons/fa6";
 import { HiOutlineArrowDownTray, HiOutlineCheckCircle, HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
-import { mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
+import { ErrorHttp, mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
 import { descargarArchivo, descargarUrl } from "@/modules/shared/presentation/descargarArchivo";
 import { EXPORTADORES_TABLA, type FormatoExportacion } from "@/modules/shared/presentation/exportacion/exportadoresTabla";
 import { useConsulta } from "@/modules/shared/presentation/hooks/useConsulta";
@@ -27,6 +27,10 @@ interface VistaPrevia {
   codigo: string;
   url: string;
   registro: RegistroRequerimientoDto;
+}
+
+function sinAlmacenamientoEnServidor(error: unknown): boolean {
+  return error instanceof ErrorHttp && error.message.startsWith("No se pudo guardar en el servidor publicado");
 }
 
 export function PaginaRequerimientosLogistica() {
@@ -93,6 +97,17 @@ export function PaginaRequerimientosLogistica() {
       formulario.reiniciar();
       await recargar();
     } catch (error) {
+      if (sinAlmacenamientoEnServidor(error)) {
+        await descargarUrl(vistaPrevia.url, `${vistaPrevia.codigo}.pdf`);
+        notificar({
+          tipo: "exito",
+          titulo: "PDF descargado",
+          mensaje: `Se descargó ${vistaPrevia.codigo}.pdf. En el servidor publicado todavía no se guarda el registro, así que no queda en la lista.`,
+        });
+        cerrarVistaPrevia();
+        formulario.reiniciar();
+        return;
+      }
       notificar({ tipo: "error", titulo: "No se pudo registrar", mensaje: mensajeDeError(error) });
     } finally {
       setRegistrando(false);
