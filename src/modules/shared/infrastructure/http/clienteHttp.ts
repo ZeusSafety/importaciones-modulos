@@ -37,6 +37,11 @@ export async function enviarFormulario<T>(url: string, formulario: FormData): Pr
   return procesarRespuesta<T>(await fetch(url, { method: "POST", body: formulario }));
 }
 
+/** El servidor publicado no puede escribir `storage/`. El navegador puede conservar el dato en su lugar. */
+export function esAlmacenamientoNoDisponible(error: unknown): boolean {
+  return error instanceof ErrorHttp && error.message.startsWith("No se pudo guardar en el servidor publicado");
+}
+
 export function mensajeDeError(error: unknown): string {
   if (error instanceof ErrorHttp) {
     return error.detalles.length > 0 ? `${error.message} ${error.detalles.join(" | ")}` : error.message;

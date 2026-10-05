@@ -9,16 +9,19 @@ import {
   HiOutlineInboxStack,
   HiOutlinePlus,
 } from "react-icons/hi2";
-import { mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
+import { ErrorHttp, esAlmacenamientoNoDisponible, mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
+import { leerBlobLocal } from "@/modules/shared/presentation/respaldoNavegador";
 import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { Campo, EntradaTexto, ValorSoloLectura } from "@/modules/shared/presentation/ui/Formulario";
 import { Modal } from "@/modules/shared/presentation/ui/Modal";
 import { useNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
 import { Selector } from "@/modules/shared/presentation/ui/Selector";
+import { fechaHoraLocalAIso } from "@/modules/shared/domain/fechas";
 import type { PreNegociacionDto } from "../../application/dto";
 import { esPaisImportacion, puertosDe } from "../../domain/origenesImportacion";
+import { PreNegociacion, type DatosPreNegociacion } from "../../domain/PreNegociacion";
 import { ESTADOS_PRE_NEGOCIACION, etiquetaPreNegociacion, TIPOS_CARGA } from "../../domain/valores";
-import { apiPreNegociaciones } from "../apiPreNegociaciones";
+import { apiPreNegociaciones, esPreNegociacionLocal, guardarPreNegociacionLocal } from "../apiPreNegociaciones";
 import { SelectorPais } from "../SelectorPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
 import { convertirAGuardar, formularioDesde, formularioVacio, type CampoTextoCabecera } from "./modeloFormulario";
@@ -78,6 +81,38 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
     alCambiar: (valor: string) => despachar({ tipo: "texto", campo, valor }),
   });
 
+  const guardarEnNavegador = () => {
+    if (formulario.tipoCarga === "") return null;
+    const datos: DatosPreNegociacion = {
+      tipoCarga: formulario.tipoCarga,
+      productos: formulario.productos,
+      pais: formulario.pais,
+      puerto: formulario.puerto,
+      registradoPor: formulario.registradoPor,
+      estado: formulario.estado,
+      cotizaciones: formulario.cotizaciones.map((cotizacion) => ({
+        id: cotizacion.id,
+        proveedor: cotizacion.proveedor,
+        productos: cotizacion.productos,
+        estado: cotizacion.estado === "" ? null : cotizacion.estado,
+        contactos: cotizacion.contactos.map((contacto) => ({
+          id: contacto.id,
+          observaciones: contacto.observaciones,
+          archivos: [...contacto.archivos],
+          ...(contacto.fecha.tipo === "editable" ? { fechaHora: fechaHoraLocalAIso(contacto.fecha.valorLocal) } : {}),
+        })),
+      })),
+    };
+    const ahora = new Date().toISOString();
+    const guardada =
+      modo.tipo === "registro"
+        ? PreNegociacion.registrar(datos, { id: crypto.randomUUID(), numero: modo.numero, ahora })
+        : PreNegociacion.desdePrimitivos(modo.preNegociacion).actualizar(datos, ahora);
+    const primitivos = guardada.aPrimitivos();
+    guardarPreNegociacionLocal(primitivos);
+    return primitivos;
+  };
+
   const guardar = async () => {
     const conversion = convertirAGuardar(formulario);
     if (!conversion.valido) {
@@ -86,6 +121,22 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
     }
     setGuardando(true);
     try {
+      const idsArchivo = formulario.cotizaciones.flatMap((cotizacion) =>
+        cotizacion.contactos.flatMap((contacto) => contacto.archivos.map((archivo) => archivo.id)),
+      );
+      const hayArchivoSoloEnNavegador = (await Promise.all(idsArchivo.map((id) => leerBlobLocal(id)))).some(Boolean);
+      const edicionSoloLocal = modo.tipo === "edicion" && esPreNegociacionLocal(modo.preNegociacion.id);
+      if (hayArchivoSoloEnNavegador || edicionSoloLocal) {
+        const guardada = guardarEnNavegador();
+        if (!guardada) return;
+        notificar({
+          tipo: "exito",
+          titulo: modo.tipo === "registro" ? "Pre-negociación registrada" : "Cambios guardados",
+          mensaje: `${etiquetaPreNegociacion(guardada.numero)} quedó en este navegador. El servidor publicado no puede guardar archivos.`,
+        });
+        alGuardar(guardada);
+        return;
+      }
       const guardada =
         modo.tipo === "registro"
           ? await apiPreNegociaciones.registrar(conversion.datos)
@@ -97,6 +148,24 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
       });
       alGuardar(guardada);
     } catch (error) {
+      const archivoInexistente = error instanceof ErrorHttp && error.message.includes("Uno de los archivos adjuntos no existe");
+      if (esAlmacenamientoNoDisponible(error) || archivoInexistente) {
+        try {
+          const guardada = guardarEnNavegador();
+          if (guardada) {
+            notificar({
+              tipo: "exito",
+              titulo: modo.tipo === "registro" ? "Pre-negociación registrada" : "Cambios guardados",
+              mensaje: `${etiquetaPreNegociacion(guardada.numero)} quedó en este navegador. El servidor publicado no puede guardar archivos.`,
+            });
+            alGuardar(guardada);
+            return;
+          }
+        } catch (falloLocal) {
+          notificar({ tipo: "error", titulo: "No se pudo guardar", mensaje: mensajeDeError(falloLocal) });
+          return;
+        }
+      }
       notificar({ tipo: "error", titulo: "No se pudo guardar", mensaje: mensajeDeError(error) });
     } finally {
       setGuardando(false);

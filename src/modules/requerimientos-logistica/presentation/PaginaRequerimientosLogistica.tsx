@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { FaFileExcel, FaFilePdf } from "react-icons/fa6";
 import { HiOutlineArrowDownTray, HiOutlineCheckCircle, HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
-import { ErrorHttp, mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
-import { descargarArchivo, descargarUrl } from "@/modules/shared/presentation/descargarArchivo";
+import { esAlmacenamientoNoDisponible, mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
+import { descargarArchivo, descargarBlob, descargarUrl } from "@/modules/shared/presentation/descargarArchivo";
 import { EXPORTADORES_TABLA, type FormatoExportacion } from "@/modules/shared/presentation/exportacion/exportadoresTabla";
 import { useConsulta } from "@/modules/shared/presentation/hooks/useConsulta";
 import { Aparicion } from "@/modules/shared/presentation/ui/Aparicion";
@@ -14,8 +14,11 @@ import { ModalVisorPdf } from "@/modules/shared/presentation/ui/ModalVisorPdf";
 import { useNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
 import { ResultadoConsulta } from "@/modules/shared/presentation/ui/ResultadoConsulta";
 import { EncabezadoPagina } from "@/modules/shared/presentation/ui/Superficies";
+import type { DatosPdfRequerimiento } from "../application/GeneradorPdfRequerimiento";
 import type { RegistroRequerimientoDto, RequerimientoLogisticaDto } from "../application/dto";
-import { apiRequerimientos } from "./apiRequerimientos";
+import type { Area } from "../domain/valores";
+import { RequerimientoLogistica } from "../domain/RequerimientoLogistica";
+import { apiRequerimientos, esRequerimientoLocal, guardarRequerimientoLocal } from "./apiRequerimientos";
 import { ModalAprobarRequerimiento } from "./ModalAprobarRequerimiento";
 import { reporteRequerimientos } from "./reporteRequerimientos";
 import { SeccionRegistroRequerimiento } from "./SeccionRegistroRequerimiento";
@@ -27,10 +30,30 @@ interface VistaPrevia {
   codigo: string;
   url: string;
   registro: RegistroRequerimientoDto;
+  datos: DatosPdfRequerimiento;
 }
 
-function sinAlmacenamientoEnServidor(error: unknown): boolean {
-  return error instanceof ErrorHttp && error.message.startsWith("No se pudo guardar en el servidor publicado");
+function requerimientoDesdeVista(datos: DatosPdfRequerimiento): RequerimientoLogisticaDto {
+  const secuencia = Number(datos.codigo.replace(/\D/g, ""));
+  return RequerimientoLogistica.registrar(
+    {
+      mes: datos.mes,
+      area: datos.area as Area,
+      responsable: datos.responsable,
+      revisadoPor: datos.revisadoPor,
+      firmaResponsable: datos.firmaResponsable,
+      firmaRevisor: datos.firmaRevisor,
+      observaciones: datos.observaciones,
+      detalles: datos.detalles.map(({ codigo, producto, stockActual, stockMinimo, disponible }) => ({
+        codigo,
+        producto,
+        stockActual,
+        stockMinimo,
+        disponible,
+      })),
+    },
+    { id: crypto.randomUUID(), secuencia, fechaRegistro: datos.fecha },
+  ).aPrimitivos();
 }
 
 export function PaginaRequerimientosLogistica() {
@@ -42,6 +65,7 @@ export function PaginaRequerimientosLogistica() {
   const [vistaPrevia, setVistaPrevia] = useState<VistaPrevia | null>(null);
   const [registrando, setRegistrando] = useState(false);
   const [visualizado, setVisualizado] = useState<RequerimientoLogisticaDto | null>(null);
+  const [urlVisualizado, setUrlVisualizado] = useState<string | null>(null);
   const [porAprobar, setPorAprobar] = useState<RequerimientoLogisticaDto | null>(null);
 
   const registrados = estado.tipo === "listo" ? estado.datos : [];
@@ -63,13 +87,14 @@ export function PaginaRequerimientosLogistica() {
     setPreparandoVistaPrevia(true);
     try {
       const { codigo } = await apiRequerimientos.siguienteCodigo();
-      const url = await generarUrlVistaPrevia({
+      const datos: DatosPdfRequerimiento = {
         ...validacion.vistaPrevia,
         codigo,
         fecha: new Date().toISOString(),
         aprobacion: null,
-      });
-      setVistaPrevia({ codigo, url, registro: validacion.registro });
+      };
+      const url = await generarUrlVistaPrevia(datos);
+      setVistaPrevia({ codigo, url, registro: validacion.registro, datos });
     } catch (error) {
       notificar({ tipo: "error", titulo: "No se pudo generar la vista previa", mensaje: mensajeDeError(error) });
     } finally {
@@ -80,6 +105,35 @@ export function PaginaRequerimientosLogistica() {
   const cerrarVistaPrevia = () => {
     if (vistaPrevia) URL.revokeObjectURL(vistaPrevia.url);
     setVistaPrevia(null);
+  };
+
+  const verRequerimiento = async (requerimiento: RequerimientoLogisticaDto) => {
+    setVisualizado(requerimiento);
+    setUrlVisualizado(null);
+    if (!esRequerimientoLocal(requerimiento.id)) {
+      setUrlVisualizado(apiRequerimientos.urlPdf(requerimiento.id, false));
+      return;
+    }
+    const url = await generarUrlVistaPrevia({
+      codigo: requerimiento.codigo,
+      fecha: requerimiento.fechaRegistro,
+      mes: requerimiento.mes,
+      area: requerimiento.area,
+      responsable: requerimiento.responsable,
+      revisadoPor: requerimiento.revisadoPor,
+      firmaResponsable: requerimiento.firmaResponsable,
+      firmaRevisor: requerimiento.firmaRevisor,
+      observaciones: requerimiento.observaciones,
+      detalles: requerimiento.detalles,
+      aprobacion: requerimiento.aprobacion,
+    });
+    setUrlVisualizado(url);
+  };
+
+  const cerrarVisualizado = () => {
+    if (urlVisualizado?.startsWith("blob:")) URL.revokeObjectURL(urlVisualizado);
+    setVisualizado(null);
+    setUrlVisualizado(null);
   };
 
   const registrar = async () => {
@@ -97,15 +151,18 @@ export function PaginaRequerimientosLogistica() {
       formulario.reiniciar();
       await recargar();
     } catch (error) {
-      if (sinAlmacenamientoEnServidor(error)) {
+      if (esAlmacenamientoNoDisponible(error)) {
+        const requerimiento = requerimientoDesdeVista(vistaPrevia.datos);
+        guardarRequerimientoLocal(requerimiento);
         await descargarUrl(vistaPrevia.url, `${vistaPrevia.codigo}.pdf`);
         notificar({
           tipo: "exito",
-          titulo: "PDF descargado",
-          mensaje: `Se descargó ${vistaPrevia.codigo}.pdf. En el servidor publicado todavía no se guarda el registro, así que no queda en la lista.`,
+          titulo: "Requerimiento registrado",
+          mensaje: `Se registró ${requerimiento.codigo} en este navegador y se descargó su PDF. El servidor publicado no puede guardar archivos, así que la lista queda en este equipo.`,
         });
         cerrarVistaPrevia();
         formulario.reiniciar();
+        await recargar();
         return;
       }
       notificar({ tipo: "error", titulo: "No se pudo registrar", mensaje: mensajeDeError(error) });
@@ -157,7 +214,11 @@ export function PaginaRequerimientosLogistica() {
       <Aparicion orden={2}>
         <ResultadoConsulta estado={estado} textoCargando="Cargando requerimientos…" alReintentar={recargar}>
           {(requerimientos) => (
-            <SeccionRequerimientosRegistrados requerimientos={requerimientos} alVer={setVisualizado} alAprobar={setPorAprobar} />
+            <SeccionRequerimientosRegistrados
+              requerimientos={requerimientos}
+              alVer={(requerimiento) => void verRequerimiento(requerimiento)}
+              alAprobar={setPorAprobar}
+            />
           )}
         </ResultadoConsulta>
       </Aparicion>
@@ -191,10 +252,10 @@ export function PaginaRequerimientosLogistica() {
 
       <ModalVisorPdf
         abierto={visualizado !== null}
-        alCerrar={() => setVisualizado(null)}
+        alCerrar={cerrarVisualizado}
         titulo={visualizado ? `${visualizado.codigo}.pdf` : "Requerimiento"}
         subtitulo={visualizado ? `Responsable: ${visualizado.responsable} · Área: ${visualizado.area}` : ""}
-        url={visualizado ? apiRequerimientos.urlPdf(visualizado.id, false) : null}
+        url={urlVisualizado}
         pie={
           visualizado && (
             <BotonDescarga
@@ -202,7 +263,15 @@ export function PaginaRequerimientosLogistica() {
               icono={<HiOutlineArrowDownTray className="h-4 w-4" />}
               texto="Descargar PDF"
               textoProceso="Descargando…"
-              alDescargar={() => descargarUrl(apiRequerimientos.urlPdf(visualizado.id, true), `${visualizado.codigo}.pdf`)}
+              alDescargar={async () => {
+                if (esRequerimientoLocal(visualizado.id)) {
+                  if (!urlVisualizado) return;
+                  const respuesta = await fetch(urlVisualizado);
+                  descargarBlob(await respuesta.blob(), `${visualizado.codigo}.pdf`);
+                  return;
+                }
+                await descargarUrl(apiRequerimientos.urlPdf(visualizado.id, true), `${visualizado.codigo}.pdf`);
+              }}
               alFallar={(error) => notificar({ tipo: "error", titulo: "No se pudo descargar", mensaje: mensajeDeError(error) })}
             />
           )

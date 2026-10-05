@@ -17,6 +17,26 @@ export const TIPOS_PERMITIDOS: Readonly<Record<string, string>> = {
 
 export const ACEPTAR_TIPOS_PERMITIDOS = Object.keys(TIPOS_PERMITIDOS).join(",");
 
+const TIPO_POR_EXTENSION: Readonly<Record<string, string>> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  pdf: "application/pdf",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+};
+
+/** Algunos navegadores dejan el tipo vacío; en ese caso se deduce por la extensión del nombre. */
+export function resolverTipoMime(nombre: string, tipoInformado: string): string {
+  if (tipoInformado) return tipoInformado;
+  const extension = nombre.split(".").pop()?.toLowerCase() ?? "";
+  return TIPO_POR_EXTENSION[extension] ?? "";
+}
+
 export interface ArchivoAdjunto {
   readonly id: string;
   readonly nombre: string;

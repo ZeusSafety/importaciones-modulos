@@ -1,7 +1,7 @@
 import "server-only";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { ErrorAlmacenamiento } from "../../domain/errores";
+import { asegurarEscritura } from "./errorDisco";
 import { rutasAlmacenamiento } from "./rutasAlmacenamiento";
 
 type Cerrojo = Promise<unknown>;
@@ -76,12 +76,7 @@ export class ColeccionJson<T> {
       await writeFile(temporal, JSON.stringify(elementos, null, 2), "utf-8");
       await rename(temporal, this.rutaArchivo);
     } catch (error) {
-      if (esDiscoDeSoloLectura(error)) {
-        throw new ErrorAlmacenamiento(
-          "No se pudo guardar en el servidor publicado. Vercel no permite escribir archivos en su disco; en su computadora el registro sí se guarda.",
-        );
-      }
-      throw error;
+      asegurarEscritura(error);
     }
   }
 }
@@ -92,9 +87,4 @@ function codigoDeSistema(error: unknown): string | undefined {
 
 function esArchivoInexistente(error: unknown): boolean {
   return codigoDeSistema(error) === "ENOENT";
-}
-
-function esDiscoDeSoloLectura(error: unknown): boolean {
-  const codigo = codigoDeSistema(error);
-  return codigo === "EROFS" || codigo === "EPERM" || codigo === "EACCES" || (process.env.VERCEL === "1" && codigo === "ENOENT");
 }

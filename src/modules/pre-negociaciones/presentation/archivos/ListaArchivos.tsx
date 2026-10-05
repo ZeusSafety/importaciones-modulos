@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HiOutlineArrowDownTray, HiOutlineDocumentText, HiOutlinePhoto, HiOutlineXMark } from "react-icons/hi2";
 import type { ArchivoAdjuntoDto } from "@/modules/archivos/application/dto";
 import { formatearFechaHora } from "@/modules/shared/domain/fechas";
+import { descargarBlob } from "@/modules/shared/presentation/descargarArchivo";
+import { urlDeBlobLocal } from "@/modules/shared/presentation/respaldoNavegador";
 import { apiPreNegociaciones } from "../apiPreNegociaciones";
 
 function formatearTamano(bytes: number): string {
@@ -15,6 +17,30 @@ function formatearTamano(bytes: number): string {
 interface PropsListaArchivos {
   archivos: readonly ArchivoAdjuntoDto[];
   alQuitar?: (archivoId: string) => void;
+}
+
+async function abrirArchivo(archivo: ArchivoAdjuntoDto, descarga: boolean) {
+  const local = await urlDeBlobLocal(archivo.id);
+  if (local) {
+    if (descarga) {
+      descargarBlob(await fetch(local).then((respuesta) => respuesta.blob()), archivo.nombre);
+    } else {
+      window.open(local, "_blank", "noopener");
+    }
+    window.setTimeout(() => URL.revokeObjectURL(local), 1000);
+    return;
+  }
+  const url = apiPreNegociaciones.urlArchivo(archivo.id, descarga);
+  if (descarga) {
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.rel = "noopener";
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    return;
+  }
+  window.open(url, "_blank", "noopener");
 }
 
 export function ListaArchivos({ archivos, alQuitar }: PropsListaArchivos) {
@@ -39,26 +65,26 @@ export function ListaArchivos({ archivos, alQuitar }: PropsListaArchivos) {
                 {esImagen ? <HiOutlinePhoto className="h-5 w-5" /> : <HiOutlineDocumentText className="h-5 w-5" />}
               </span>
               <div className="min-w-0 flex-1">
-                <a
-                  href={apiPreNegociaciones.urlArchivo(archivo.id, false)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block truncate text-xs font-semibold text-slate-800 hover:text-zeus-tinta hover:underline"
+                <button
+                  type="button"
+                  onClick={() => void abrirArchivo(archivo, false)}
+                  className="block max-w-full truncate text-left text-xs font-semibold text-slate-800 hover:text-zeus-tinta hover:underline"
                 >
                   {archivo.nombre}
-                </a>
+                </button>
                 <p className="text-[11px] text-slate-500">
                   {formatearTamano(archivo.tamanoBytes)} · Subido el {formatearFechaHora(archivo.subidoEn)} por{" "}
                   <span className="font-semibold text-slate-600">{archivo.subidoPor}</span>
                 </p>
               </div>
-              <a
-                href={apiPreNegociaciones.urlArchivo(archivo.id, true)}
+              <button
+                type="button"
                 aria-label={`Descargar ${archivo.nombre}`}
+                onClick={() => void abrirArchivo(archivo, true)}
                 className="rounded-md p-1.5 text-slate-400 transition hover:bg-zeus-celeste hover:text-zeus-tinta"
               >
                 <HiOutlineArrowDownTray className="h-4 w-4" />
-              </a>
+              </button>
               {alQuitar && (
                 <button
                   type="button"

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolverTipoMime } from "@/modules/archivos/domain/ArchivoAdjunto";
 import { ErrorValidacion } from "@/modules/shared/domain/errores";
 import { manejarRuta } from "@/modules/shared/infrastructure/http/manejarRuta";
 import { contenedor } from "@/server/contenedor";
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     }
     const adjunto = await contenedor.archivos.subir.ejecutar({
       nombre: archivo.name,
-      tipoMime: archivo.type,
+      tipoMime: resolverTipoMime(archivo.name, archivo.type),
       contenido: new Uint8Array(await archivo.arrayBuffer()),
       subidoPor,
     });

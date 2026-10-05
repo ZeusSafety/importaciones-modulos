@@ -2,6 +2,7 @@ import "server-only";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { ColeccionJson } from "@/modules/shared/infrastructure/persistencia/ColeccionJson";
+import { asegurarEscritura } from "@/modules/shared/infrastructure/persistencia/errorDisco";
 import { rutasAlmacenamiento } from "@/modules/shared/infrastructure/persistencia/rutasAlmacenamiento";
 import type { Bytes } from "@/modules/shared/domain/puertos";
 import type { ArchivoAdjunto } from "../domain/ArchivoAdjunto";
@@ -31,8 +32,12 @@ export class RepositorioArchivosJson implements RepositorioArchivos {
 
 export class AlmacenArchivosLocal implements AlmacenArchivos {
   async escribir(nombreAlmacenado: string, contenido: Bytes): Promise<void> {
-    await mkdir(rutasAlmacenamiento.archivos, { recursive: true });
-    await writeFile(this.ruta(nombreAlmacenado), contenido);
+    try {
+      await mkdir(rutasAlmacenamiento.archivos, { recursive: true });
+      await writeFile(this.ruta(nombreAlmacenado), contenido);
+    } catch (error) {
+      asegurarEscritura(error);
+    }
   }
 
   async leer(nombreAlmacenado: string): Promise<Bytes> {
