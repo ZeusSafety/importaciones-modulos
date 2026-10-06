@@ -26,7 +26,7 @@ export function TablaPreNegociaciones({ preNegociaciones, alSeleccionar }: Props
       <EstadoVacio
         icono={<HiOutlineDocumentCurrencyDollar />}
         titulo="No hay pre-negociaciones para mostrar"
-        descripcion="Pulse ┬½Registrar┬╗ para crear la primera pre-negociaci├│n o ajuste los filtros."
+        descripcion="Pulse «Registrar» para crear la primera pre-negociación o ajuste los filtros."
       />
     );
   }
@@ -36,7 +36,7 @@ export function TablaPreNegociaciones({ preNegociaciones, alSeleccionar }: Props
       <table className="tabla-zeus w-full table-fixed text-left text-sm">
         <thead>
           <tr>
-            <th className="w-[36%] truncate px-4 py-3 sm:w-[24%] md:w-[20%] lg:w-[17%]">Pre-negociaci├│n</th>
+            <th className="w-[36%] truncate px-4 py-3 sm:w-[24%] md:w-[20%] lg:w-[17%]">Pre-negociación</th>
             <th className="hidden truncate px-4 py-3 sm:table-cell sm:w-[28%] md:w-[23%] lg:w-[19%]">Tipo carga</th>
             <th className="w-[26%] truncate px-4 py-3 sm:w-[18%] md:w-[14%] lg:w-[11%]">Fecha</th>
             <th className="hidden truncate px-4 py-3 lg:table-cell">Productos</th>

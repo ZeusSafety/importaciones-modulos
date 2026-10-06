@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import {
   HiOutlineCheckCircle,
@@ -24,8 +23,8 @@ import { ESTADOS_PRE_NEGOCIACION, etiquetaPreNegociacion, TIPOS_CARGA } from "..
 import { apiPreNegociaciones, esPreNegociacionLocal, guardarPreNegociacionLocal } from "../apiPreNegociaciones";
 import { SelectorPais } from "../SelectorPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
+import { CarruselNegociaciones } from "./CarruselNegociaciones";
 import { convertirAGuardar, formularioDesde, formularioVacio, type CampoTextoCabecera } from "./modeloFormulario";
-import { TarjetaCotizacion } from "./TarjetaCotizacion";
 import { useFormularioPreNegociacion } from "./useFormularioPreNegociacion";
 
 export type ModoFormulario =
@@ -267,19 +266,13 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
             </div>
           )}
 
-          <div className="space-y-4">
-            <AnimatePresence initial={false}>
-              {formulario.cotizaciones.map((cotizacion, indice) => (
-                <TarjetaCotizacion
-                  key={cotizacion.id}
-                  cotizacion={cotizacion}
-                  numero={indice + 1}
-                  registradoPor={formulario.registradoPor}
-                  despachar={despachar}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
+          {formulario.cotizaciones.length > 0 && (
+            <CarruselNegociaciones
+              cotizaciones={formulario.cotizaciones}
+              registradoPor={formulario.registradoPor}
+              despachar={despachar}
+            />
+          )}
         </section>
 
         <section className="rounded-2xl border border-zeus-azul/15 bg-zeus-celeste/40 p-4">

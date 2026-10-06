@@ -2,9 +2,10 @@ import Link from "next/link";
 import {
   HiOutlineArrowRight,
   HiOutlineBookOpen,
-  HiOutlineBuildingStorefront,
+  HiOutlineBuildingOffice2,
   HiOutlineChartPie,
   HiOutlineClipboardDocumentCheck,
+  HiOutlineClipboardDocumentList,
   HiOutlineCube,
   HiOutlineDocumentCurrencyDollar,
   HiOutlineInboxStack,
@@ -83,7 +84,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
         <Aparicion orden={1}>
           <TarjetaIndicador
             acento="azul"
-            icono={<HiOutlineDocumentCurrencyDollar />}
+            icono={<HiOutlineClipboardDocumentList />}
             etiqueta="Pre-negociaciones"
             valor={totales.preNegociaciones}
             pie={{ tipo: "distribucion", series: seriesDespachos }}
@@ -92,7 +93,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
         <Aparicion orden={2}>
           <TarjetaIndicador
             acento="verde"
-            icono={<HiOutlineInboxStack />}
+            icono={<HiOutlineDocumentCurrencyDollar />}
             etiqueta="Negociaciones"
             valor={totales.cotizaciones}
             pie={{ tipo: "distribucion", series: seriesCotizaciones }}
@@ -101,7 +102,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
         <Aparicion orden={3}>
           <TarjetaIndicador
             acento="dorado"
-            icono={<HiOutlineBuildingStorefront />}
+            icono={<HiOutlineBuildingOffice2 />}
             etiqueta="Proveedores cotizados"
             valor={totales.proveedores}
             pie={{ tipo: "texto", resaltado: cotizacionesPorProveedor, detalle: "negociaciones por proveedor" }}

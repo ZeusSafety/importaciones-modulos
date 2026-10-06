@@ -3,6 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import type { ReactNode } from "react";
 import { SCRIPT_TEMA_INICIAL } from "@/modules/shared/presentation/tema/constantesTema";
 import { ProveedorNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
+import { PantallaCarga } from "@/modules/shared/presentation/ui/PantallaCarga";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA_INICIAL }} />
       </head>
       <body className={`${inter.variable} ${poppins.variable} antialiased`}>
+        <PantallaCarga />
         <ProveedorNotificaciones>{children}</ProveedorNotificaciones>
       </body>
     </html>

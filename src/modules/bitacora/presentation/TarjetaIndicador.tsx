@@ -6,28 +6,24 @@ import { PALETA_GRAFICO, porcentaje, totalSeries, TRANSICION_GRAFICO, type Serie
 
 const ACENTOS = {
   azul: {
-    icono: "from-zeus-azul to-zeus-azul-medio shadow-zeus-azul/30",
+    icono: "bg-zeus-celeste text-zeus-azul",
     resaltado: "bg-zeus-celeste text-zeus-tinta",
-    franja: "from-zeus-azul to-zeus-azul-medio",
-    borde: "hover:border-zeus-azul-medio/40",
+    filete: "bg-zeus-azul",
   },
   verde: {
-    icono: "from-emerald-600 to-emerald-400 shadow-emerald-600/30",
+    icono: "bg-emerald-50 text-emerald-700",
     resaltado: "bg-emerald-50 text-emerald-700",
-    franja: "from-emerald-600 to-emerald-400",
-    borde: "hover:border-emerald-500/40",
+    filete: "bg-emerald-600",
   },
   dorado: {
-    icono: "from-amber-500 to-zeus-dorado shadow-amber-500/30",
-    resaltado: "bg-amber-50 text-amber-700",
-    franja: "from-amber-500 to-zeus-dorado",
-    borde: "hover:border-amber-500/40",
+    icono: "bg-amber-50 text-amber-700",
+    resaltado: "bg-amber-50 text-amber-800",
+    filete: "bg-zeus-dorado",
   },
   violeta: {
-    icono: "from-violet-600 to-violet-400 shadow-violet-600/30",
+    icono: "bg-violet-50 text-violet-700",
     resaltado: "bg-violet-50 text-violet-700",
-    franja: "from-violet-600 to-violet-400",
-    borde: "hover:border-violet-500/40",
+    filete: "bg-violet-600",
   },
 } as const;
 
@@ -62,23 +58,30 @@ function PieDistribucion({ series }: { series: readonly SerieGrafico[] }) {
   const total = totalSeries(series);
   return (
     <div>
-      <div className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-slate-100">
-        {series.map((serie, indice) =>
-          serie.valor === 0 ? null : (
-            <motion.span
-              key={serie.etiqueta}
-              className={`h-full ${PALETA_GRAFICO[serie.color].punto}`}
-              initial={{ width: 0 }}
-              animate={{ width: `${porcentaje(serie.valor, total)}%` }}
-              transition={{ ...TRANSICION_GRAFICO, delay: 0.3 + indice * 0.1 }}
-            />
-          ),
+      <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-slate-100">
+        {total === 0 ? (
+          <span className="h-full w-full bg-slate-200" />
+        ) : (
+          series.map((serie, indice) =>
+            serie.valor === 0 ? null : (
+              <motion.span
+                key={serie.etiqueta}
+                className={`h-full ${PALETA_GRAFICO[serie.color].punto}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${porcentaje(serie.valor, total)}%` }}
+                transition={{ ...TRANSICION_GRAFICO, delay: 0.3 + indice * 0.1 }}
+              />
+            ),
+          )
         )}
       </div>
-      <ul className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1">
+      <ul className="mt-3 flex flex-wrap gap-1.5">
         {series.map((serie) => (
-          <li key={serie.etiqueta} className="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
-            <span className={`h-2 w-2 rounded-full ${PALETA_GRAFICO[serie.color].punto}`} />
+          <li
+            key={serie.etiqueta}
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500"
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${PALETA_GRAFICO[serie.color].punto}`} />
             <span className="font-display font-bold tabular-nums text-slate-800">{serie.valor}</span>
             <span className="capitalize">{serie.etiqueta.toLowerCase()}</span>
           </li>
@@ -99,32 +102,30 @@ interface PropsTarjetaIndicador {
 export function TarjetaIndicador({ icono, etiqueta, valor, acento, pie }: PropsTarjetaIndicador) {
   const estilo = ACENTOS[acento];
   return (
-    <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-superficie p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_32px_-16px_rgba(15,23,42,0.3)] ${estilo.borde}`}
-    >
-      <span className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${estilo.franja}`} />
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-superficie p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_-24px_rgba(0,45,90,0.45)]">
+      <span className={`absolute inset-y-0 left-0 w-1 ${estilo.filete}`} />
 
-      <div className="mb-5 flex items-center gap-4">
-        <span
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-2xl text-white shadow-lg transition-transform duration-300 group-hover:scale-105 ${estilo.icono}`}
-        >
-          {icono}
-        </span>
+      <div className="flex items-start justify-between gap-3 pl-2">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase leading-snug tracking-[0.1em] text-slate-500">{etiqueta}</p>
-          <p className="mt-1 font-display text-[32px] font-bold leading-none tabular-nums text-slate-900">
+          <p className="text-[10px] font-semibold uppercase leading-snug tracking-[0.14em] text-slate-400">{etiqueta}</p>
+          <p className="mt-2 font-display text-4xl font-bold leading-none tabular-nums tracking-tight text-zeus-azul">
             <ContadorAnimado valor={valor} />
           </p>
         </div>
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-black/5 [&>svg]:h-5 [&>svg]:w-5 ${estilo.icono}`}>
+          {icono}
+        </span>
       </div>
 
-      <div className="mt-auto border-t border-slate-100 pt-3.5">
+      <div className="mt-5 pl-2">
         {pie.tipo === "distribucion" ? (
           <PieDistribucion series={pie.series} />
         ) : (
-          <div className="flex items-center gap-2">
-            <span className={`shrink-0 rounded-md px-2 py-0.5 font-display text-[11px] font-bold ${estilo.resaltado}`}>{pie.resaltado}</span>
-            <span className="truncate text-xs text-slate-500">{pie.detalle}</span>
+          <div className="flex items-center gap-2 border-t border-slate-100 pt-3">
+            <span className={`shrink-0 rounded-md px-2 py-1 font-display text-[11px] font-bold tracking-wide ${estilo.resaltado}`}>
+              {pie.resaltado}
+            </span>
+            <span className="text-xs leading-snug text-slate-500">{pie.detalle}</span>
           </div>
         )}
       </div>

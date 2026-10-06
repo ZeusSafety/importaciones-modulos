@@ -58,10 +58,11 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                       <button
                         type="button"
                         onClick={() => alVer(requerimiento)}
-                        title="Ver y descargar el PDF"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-100 hover:shadow-sm"
+                        title={`${requerimiento.codigo}.pdf`}
+                        aria-label={`Ver ${requerimiento.codigo}.pdf`}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:-translate-y-0.5 hover:bg-red-100 hover:shadow-sm"
                       >
-                        <FaFilePdf className="h-4 w-4" /> {requerimiento.codigo}.pdf
+                        <FaFilePdf className="h-5 w-5" />
                       </button>
                     </td>
                     <td className="px-5 py-3">
