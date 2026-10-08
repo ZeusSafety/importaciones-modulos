@@ -1,10 +1,32 @@
-const PREFIJO = "zeus.importaciones.";
-const BASE_DATOS = "zeus-importaciones";
+/**
+ * Subir la versión descarta los respaldos de versiones anteriores (datos de prueba) en todos los navegadores:
+ * la app vuelve a empezar vacía y solo muestra lo que se registre desde entonces.
+ */
+const VERSION_RESPALDO = 2;
+const PREFIJO_BASE = "zeus.importaciones.";
+const PREFIJO = `${PREFIJO_BASE}v${VERSION_RESPALDO}.`;
+const BASE_DATOS_ANTERIOR = "zeus-importaciones";
+const BASE_DATOS = `${BASE_DATOS_ANTERIOR}-v${VERSION_RESPALDO}`;
 const ALMACEN_BLOBS = "archivos";
+/** Claves con el prefijo base que no son respaldos de datos y deben conservarse. */
+const CLAVES_CONSERVADAS = new Set([`${PREFIJO_BASE}notificaciones`]);
+
+let respaldoAnteriorDescartado = false;
+
+function descartarRespaldoAnterior() {
+  if (respaldoAnteriorDescartado) return;
+  respaldoAnteriorDescartado = true;
+  const obsoletas = Object.keys(localStorage).filter(
+    (clave) => clave.startsWith(PREFIJO_BASE) && !clave.startsWith(PREFIJO) && !CLAVES_CONSERVADAS.has(clave),
+  );
+  obsoletas.forEach((clave) => localStorage.removeItem(clave));
+  if (obsoletas.length > 0 && typeof indexedDB !== "undefined") indexedDB.deleteDatabase(BASE_DATOS_ANTERIOR);
+}
 
 export function leerColeccion<T>(nombre: string): T[] {
   if (typeof window === "undefined") return [];
   try {
+    descartarRespaldoAnterior();
     const texto = localStorage.getItem(PREFIJO + nombre);
     if (!texto) return [];
     const datos = JSON.parse(texto) as unknown;
@@ -15,6 +37,7 @@ export function leerColeccion<T>(nombre: string): T[] {
 }
 
 export function guardarEnColeccion<T extends { id: string }>(nombre: string, elemento: T): void {
+  descartarRespaldoAnterior();
   const resto = leerColeccion<T>(nombre).filter((actual) => actual.id !== elemento.id);
   localStorage.setItem(PREFIJO + nombre, JSON.stringify([elemento, ...resto]));
 }
