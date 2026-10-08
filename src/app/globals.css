@@ -129,6 +129,17 @@ body {
   background-clip: padding-box;
 }
 
+/* Rutas del mapa de orígenes: los trazos punteados avanzan hacia el destino. */
+@keyframes mapa-flujo {
+  to {
+    stroke-dashoffset: -34;
+  }
+}
+
+.mapa-flujo {
+  animation: mapa-flujo 1.6s linear infinite;
+}
+
 /* Insignias de estado resaltadas: halo que late, destello que cruza y punto vivo. --brillo es el color del halo. */
 @keyframes insignia-halo {
   0% {

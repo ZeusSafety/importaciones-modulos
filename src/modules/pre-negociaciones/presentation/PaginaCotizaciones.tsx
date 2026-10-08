@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { FaFileExcel, FaFilePdf } from "react-icons/fa6";
-import { HiOutlineDocumentCurrencyDollar, HiOutlineListBullet, HiOutlinePlus, HiOutlineViewColumns } from "react-icons/hi2";
+import { HiOutlineDocumentCurrencyDollar, HiOutlineListBullet, HiOutlinePlus } from "react-icons/hi2";
 import { mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
 import { EXPORTADORES_TABLA, type FormatoExportacion } from "@/modules/shared/presentation/exportacion/exportadoresTabla";
 import { useConsulta } from "@/modules/shared/presentation/hooks/useConsulta";
@@ -17,7 +17,7 @@ import type { PreNegociacionDto } from "../application/dto";
 import { paisesFueraDelCatalogo } from "../domain/origenesImportacion";
 import { apiPreNegociaciones } from "./apiPreNegociaciones";
 import { reportePreNegociaciones } from "./exportacion/reportePreNegociaciones";
-import { ModalFormularioPreNegociacion, type ModoFormulario } from "./formulario/ModalFormularioPreNegociacion";
+import { ModalFormularioPreNegociacion, modoNuevoRegistro, type ModoFormulario } from "./formulario/ModalFormularioPreNegociacion";
 import { aplicarFiltros, FILTROS_INICIALES, type FiltrosPreNegociaciones } from "./listado/filtrosPreNegociaciones";
 import { PanelFiltrosPreNegociaciones } from "./listado/PanelFiltrosPreNegociaciones";
 import { TablaPreNegociaciones } from "./listado/TablaPreNegociaciones";
@@ -28,23 +28,25 @@ export function PaginaCotizaciones() {
   const { estado, recargar } = useConsulta(apiPreNegociaciones.listar);
   const [seleccionadaId, setSeleccionadaId] = useState<string | null>(null);
   const [enTabla, setEnTabla] = useState(false);
-  const [listaVisible, setListaVisible] = useState(true);
   const [filtros, setFiltros] = useState<FiltrosPreNegociaciones>(FILTROS_INICIALES);
   const [modo, setModo] = useState<ModoFormulario | null>(null);
   const [abriendoRegistro, setAbriendoRegistro] = useState(false);
+  const [duplicando, setDuplicando] = useState(false);
 
   const filtradas = estado.tipo === "listo" ? aplicarFiltros(estado.datos, filtros) : [];
   const paisesAdicionales = estado.tipo === "listo" ? paisesFueraDelCatalogo(estado.datos.map((p) => p.pais)) : [];
 
-  const abrirRegistro = async () => {
-    setAbriendoRegistro(true);
+  /** Con `origen`, el formulario se abre como copia editable de esa pre-negociación. */
+  const abrirRegistro = async (origen?: PreNegociacionDto) => {
+    const marcar = origen ? setDuplicando : setAbriendoRegistro;
+    marcar(true);
     try {
       const { numero } = await apiPreNegociaciones.siguienteNumero();
-      setModo({ tipo: "registro", apertura: Date.now(), numero });
+      setModo(modoNuevoRegistro(numero, origen));
     } catch (error) {
       notificar({ tipo: "error", titulo: "No se pudo abrir el registro", mensaje: mensajeDeError(error) });
     } finally {
-      setAbriendoRegistro(false);
+      marcar(false);
     }
   };
 
@@ -59,7 +61,6 @@ export function PaginaCotizaciones() {
   const seleccionar = (preNegociacion: PreNegociacionDto) => {
     setSeleccionadaId(preNegociacion.id);
     setEnTabla(false);
-    setListaVisible(true);
   };
 
   const alGuardar = async (guardada: PreNegociacionDto) => {
@@ -127,32 +128,9 @@ export function PaginaCotizaciones() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Boton variante="primario" icono={<HiOutlinePlus />} cargando={abriendoRegistro} onClick={abrirRegistro}>
+                      <Boton variante="primario" icono={<HiOutlinePlus />} cargando={abriendoRegistro} onClick={() => void abrirRegistro()}>
                         Registrar
                       </Boton>
-                      <AnimatePresence initial={false}>
-                        {seleccionada && (
-                          <motion.button
-                            key="alternar-lista"
-                            type="button"
-                            initial={{ opacity: 0, scale: 0.85 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.85 }}
-                            transition={{ duration: 0.18 }}
-                            onClick={() => setListaVisible((visible) => !visible)}
-                            aria-pressed={listaVisible}
-                            aria-label={listaVisible ? "Ocultar lista de pre-negociaciones" : "Mostrar lista de pre-negociaciones"}
-                            title={listaVisible ? "Ocultar lista" : "Mostrar lista"}
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg border transition ${
-                              listaVisible
-                                ? "border-zeus-azul/25 bg-zeus-celeste text-zeus-tinta hover:bg-zeus-azul/10"
-                                : "border-slate-300 bg-superficie text-slate-500 hover:border-zeus-azul/40 hover:text-zeus-tinta"
-                            }`}
-                          >
-                            <HiOutlineViewColumns className="h-5 w-5" />
-                          </motion.button>
-                        )}
-                      </AnimatePresence>
                     </div>
                   </header>
 
@@ -162,9 +140,11 @@ export function PaginaCotizaciones() {
                         <VistaMaestroDetalle
                           preNegociaciones={filtradas}
                           seleccionada={seleccionada}
-                          listaVisible={listaVisible}
+                          listaVisible
                           alSeleccionar={seleccionar}
                           alEditar={(p) => setModo({ tipo: "edicion", apertura: Date.now(), preNegociacion: p })}
+                          alDuplicar={(p) => void abrirRegistro(p)}
+                          duplicando={duplicando}
                           alVolver={() => setEnTabla(true)}
                         />
                       </motion.div>

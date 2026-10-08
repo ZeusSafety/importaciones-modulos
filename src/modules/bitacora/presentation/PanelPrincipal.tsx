@@ -8,6 +8,7 @@ import {
   HiOutlineClipboardDocumentList,
   HiOutlineCube,
   HiOutlineDocumentCurrencyDollar,
+  HiOutlineGlobeAmericas,
   HiOutlineInboxStack,
 } from "react-icons/hi2";
 import { formatearFecha } from "@/modules/shared/domain/fechas";
@@ -30,6 +31,7 @@ import { ContenedorTabla, EstadoVacio, TarjetaSeccion } from "@/modules/shared/p
 import { ESTADOS_COTIZACION_REPORTE, type PanelPrincipalDto } from "../application/ObtenerPanelPrincipal";
 import { BannerBitacora } from "./BannerBitacora";
 import { LineaTiempoBitacora } from "./LineaTiempoBitacora";
+import { MapaOrigenes } from "./mapa/MapaOrigenes";
 import { ResumenDespachos } from "./ResumenDespachos";
 import { TarjetaIndicador } from "./TarjetaIndicador";
 
@@ -164,8 +166,18 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
         </Aparicion>
       </div>
 
+      <Aparicion orden={8}>
+        <TarjetaSeccion
+          icono={<HiOutlineGlobeAmericas />}
+          titulo="Orígenes de importación"
+          subtitulo="Pre-negociaciones por país y puerto de embarque"
+        >
+          <MapaOrigenes origenes={panel.origenes} />
+        </TarjetaSeccion>
+      </Aparicion>
+
       <div className="grid gap-6 xl:grid-cols-5">
-        <Aparicion orden={8} className="xl:col-span-3">
+        <Aparicion orden={9} className="xl:col-span-3">
           <TarjetaSeccion
             altoCompleto
             icono={<HiOutlineDocumentCurrencyDollar />}
@@ -210,7 +222,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           </TarjetaSeccion>
         </Aparicion>
 
-        <Aparicion orden={9} className="xl:col-span-2">
+        <Aparicion orden={10} className="xl:col-span-2">
           <TarjetaSeccion
             altoCompleto
             icono={<HiOutlineBookOpen />}

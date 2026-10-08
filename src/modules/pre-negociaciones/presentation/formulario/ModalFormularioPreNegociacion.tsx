@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   HiOutlineCheckCircle,
   HiOutlineDocumentCurrencyDollar,
+  HiOutlineDocumentDuplicate,
   HiOutlineFlag,
   HiOutlineInboxStack,
   HiOutlinePlus,
@@ -24,12 +25,26 @@ import { apiPreNegociaciones, esPreNegociacionLocal, guardarPreNegociacionLocal 
 import { SelectorPais } from "../SelectorPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
 import { CarruselNegociaciones } from "./CarruselNegociaciones";
-import { convertirAGuardar, formularioDesde, formularioVacio, type CampoTextoCabecera } from "./modeloFormulario";
+import { convertirAGuardar, formularioDesde, formularioDuplicado, formularioVacio, type CampoTextoCabecera } from "./modeloFormulario";
 import { useFormularioPreNegociacion } from "./useFormularioPreNegociacion";
 
 export type ModoFormulario =
   | { readonly tipo: "registro"; readonly apertura: number; readonly numero: number }
+  /** Registro nuevo que parte de una copia editable de `origen`. */
+  | { readonly tipo: "duplicado"; readonly apertura: number; readonly numero: number; readonly origen: PreNegociacionDto }
   | { readonly tipo: "edicion"; readonly apertura: number; readonly preNegociacion: PreNegociacionDto };
+
+/** Modo para un registro nuevo; con `origen` arranca como copia editable. */
+export function modoNuevoRegistro(numero: number, origen?: PreNegociacionDto): ModoFormulario {
+  const apertura = Date.now();
+  return origen ? { tipo: "duplicado", apertura, numero, origen } : { tipo: "registro", apertura, numero };
+}
+
+function formularioInicial(modo: ModoFormulario) {
+  if (modo.tipo === "registro") return formularioVacio();
+  if (modo.tipo === "duplicado") return formularioDuplicado(modo.origen);
+  return formularioDesde(modo.preNegociacion);
+}
 
 interface PropsModalFormulario {
   modo: ModoFormulario | null;
@@ -67,13 +82,13 @@ interface PropsFormulario {
 
 function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, alGuardar }: PropsFormulario) {
   const notificar = useNotificaciones();
-  const { formulario, despachar } = useFormularioPreNegociacion(() =>
-    modo.tipo === "registro" ? formularioVacio() : formularioDesde(modo.preNegociacion),
-  );
+  const { formulario, despachar } = useFormularioPreNegociacion(() => formularioInicial(modo));
   const [guardando, setGuardando] = useState(false);
 
-  const numero = modo.tipo === "registro" ? modo.numero : modo.preNegociacion.numero;
+  const esNueva = modo.tipo !== "edicion";
+  const numero = modo.tipo === "edicion" ? modo.preNegociacion.numero : modo.numero;
   const etiqueta = etiquetaPreNegociacion(numero);
+  const tituloExito = esNueva ? "Pre-negociación registrada" : "Cambios guardados";
 
   const texto = (campo: CampoTextoCabecera) => ({
     valor: formulario[campo],
@@ -104,9 +119,9 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
     };
     const ahora = new Date().toISOString();
     const guardada =
-      modo.tipo === "registro"
-        ? PreNegociacion.registrar(datos, { id: crypto.randomUUID(), numero: modo.numero, ahora })
-        : PreNegociacion.desdePrimitivos(modo.preNegociacion).actualizar(datos, ahora);
+      modo.tipo === "edicion"
+        ? PreNegociacion.desdePrimitivos(modo.preNegociacion).actualizar(datos, ahora)
+        : PreNegociacion.registrar(datos, { id: crypto.randomUUID(), numero: modo.numero, ahora });
     const primitivos = guardada.aPrimitivos();
     guardarPreNegociacionLocal(primitivos);
     return primitivos;
@@ -130,19 +145,19 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
         if (!guardada) return;
         notificar({
           tipo: "exito",
-          titulo: modo.tipo === "registro" ? "Pre-negociación registrada" : "Cambios guardados",
+          titulo: tituloExito,
           mensaje: `${etiquetaPreNegociacion(guardada.numero)} quedó en este navegador. El servidor publicado no puede guardar archivos.`,
         });
         alGuardar(guardada);
         return;
       }
       const guardada =
-        modo.tipo === "registro"
-          ? await apiPreNegociaciones.registrar(conversion.datos)
-          : await apiPreNegociaciones.actualizar(modo.preNegociacion.id, conversion.datos);
+        modo.tipo === "edicion"
+          ? await apiPreNegociaciones.actualizar(modo.preNegociacion.id, conversion.datos)
+          : await apiPreNegociaciones.registrar(conversion.datos);
       notificar({
         tipo: "exito",
-        titulo: modo.tipo === "registro" ? "Pre-negociación registrada" : "Cambios guardados",
+        titulo: tituloExito,
         mensaje: `${etiquetaPreNegociacion(guardada.numero)} se guardó correctamente.`,
       });
       alGuardar(guardada);
@@ -154,7 +169,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
           if (guardada) {
             notificar({
               tipo: "exito",
-              titulo: modo.tipo === "registro" ? "Pre-negociación registrada" : "Cambios guardados",
+              titulo: tituloExito,
               mensaje: `${etiquetaPreNegociacion(guardada.numero)} quedó en este navegador. El servidor publicado no puede guardar archivos.`,
             });
             alGuardar(guardada);
@@ -175,9 +190,15 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
     <Modal
       abierto={abierto}
       alCerrar={alCerrar}
-      titulo={modo.tipo === "registro" ? "Registrar pre-negociación" : `Editar ${etiqueta}`}
+      titulo={
+        modo.tipo === "registro"
+          ? "Registrar pre-negociación"
+          : modo.tipo === "duplicado"
+            ? `Duplicar ${etiquetaPreNegociacion(modo.origen.numero)}`
+            : `Editar ${etiqueta}`
+      }
       subtitulo="Complete los datos generales, añada la negociación de cada proveedor y guarde."
-      icono={<HiOutlineDocumentCurrencyDollar />}
+      icono={modo.tipo === "duplicado" ? <HiOutlineDocumentDuplicate /> : <HiOutlineDocumentCurrencyDollar />}
       tamano="completo"
       pie={
         <>
@@ -191,6 +212,21 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
       }
     >
       <div className="space-y-6">
+        {modo.tipo === "duplicado" && (
+          <div className="flex items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#8b5cf6] to-[#6d28d9] text-white shadow-md shadow-violet-500/30">
+              <HiOutlineDocumentDuplicate className="h-5 w-5" />
+            </span>
+            <div className="text-xs leading-relaxed text-slate-600">
+              <p className="font-display text-sm font-semibold text-slate-900">
+                Copia de {etiquetaPreNegociacion(modo.origen.numero)} · se guardará como {etiqueta}
+              </p>
+              Se copiaron los datos generales y los proveedores. El estado, los resultados, los contactos y los archivos empiezan
+              de cero. Cambie lo que necesite antes de guardar; la original no se modifica.
+            </div>
+          </div>
+        )}
+
         <section>
           <h3 className="mb-3 font-display text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Datos de la pre-negociación</h3>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

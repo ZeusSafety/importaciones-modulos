@@ -4,6 +4,7 @@ import {
   AlmacenArchivosLocal,
   RepositorioArchivosJson,
 } from "@/modules/archivos/infrastructure/AdaptadoresArchivosLocales";
+import { ListarEventosRecientes } from "@/modules/bitacora/application/ListarEventosRecientes";
 import { ObtenerPanelPrincipal } from "@/modules/bitacora/application/ObtenerPanelPrincipal";
 import { RegistradorBitacora } from "@/modules/bitacora/application/RegistradorBitacora";
 import { RepositorioBitacoraJson } from "@/modules/bitacora/infrastructure/RepositorioBitacoraJson";
@@ -45,6 +46,9 @@ function crearContenedor() {
   return {
     panelPrincipal: {
       obtener: new ObtenerPanelPrincipal(repositorioPreNegociaciones, repositorioRequerimientos, repositorioBitacora),
+    },
+    bitacora: {
+      recientes: new ListarEventosRecientes(repositorioBitacora),
     },
     productos: {
       buscar: new BuscarProductos(repositorioProductos),

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { Producto } from "@/modules/catalogo-productos/domain/Producto";
 import { FaFileExcel, FaFilePdf } from "react-icons/fa6";
 import { HiOutlineArrowDownTray, HiOutlineCheckCircle, HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
 import { esAlmacenamientoNoDisponible, mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
@@ -16,8 +17,8 @@ import { ResultadoConsulta } from "@/modules/shared/presentation/ui/ResultadoCon
 import { EncabezadoPagina } from "@/modules/shared/presentation/ui/Superficies";
 import type { DatosPdfRequerimiento } from "../application/GeneradorPdfRequerimiento";
 import type { RegistroRequerimientoDto, RequerimientoLogisticaDto } from "../application/dto";
-import type { Area } from "../domain/valores";
-import { RequerimientoLogistica } from "../domain/RequerimientoLogistica";
+import { AREAS, MESES, type Area, type Mes } from "../domain/valores";
+import { RequerimientoLogistica, type DetalleRequerimiento } from "../domain/RequerimientoLogistica";
 import { apiRequerimientos, esRequerimientoLocal, guardarRequerimientoLocal } from "./apiRequerimientos";
 import { ModalAprobarRequerimiento } from "./ModalAprobarRequerimiento";
 import { reporteRequerimientos } from "./reporteRequerimientos";
@@ -56,6 +57,26 @@ function requerimientoDesdeVista(datos: DatosPdfRequerimiento): RequerimientoLog
   ).aPrimitivos();
 }
 
+function mesSiguiente(mes: Mes): Mes {
+  return MESES[(MESES.indexOf(mes) + 1) % MESES.length];
+}
+
+/** Stock vigente del catálogo; si el producto ya no aparece, se conserva el del requerimiento original. */
+async function productoActualizado(detalle: DetalleRequerimiento): Promise<Producto> {
+  const respaldo: Producto = {
+    codigo: detalle.codigo,
+    nombre: detalle.producto,
+    stockActual: detalle.stockActual,
+    stockMinimo: detalle.stockMinimo,
+  };
+  try {
+    const encontrados = await apiRequerimientos.buscarProductos(detalle.codigo);
+    return encontrados.find((producto) => producto.codigo === detalle.codigo) ?? respaldo;
+  } catch {
+    return respaldo;
+  }
+}
+
 export function PaginaRequerimientosLogistica() {
   const notificar = useNotificaciones();
   const formulario = useFormularioRequerimiento();
@@ -67,6 +88,8 @@ export function PaginaRequerimientosLogistica() {
   const [visualizado, setVisualizado] = useState<RequerimientoLogisticaDto | null>(null);
   const [urlVisualizado, setUrlVisualizado] = useState<string | null>(null);
   const [porAprobar, setPorAprobar] = useState<RequerimientoLogisticaDto | null>(null);
+  const [duplicandoId, setDuplicandoId] = useState<string | null>(null);
+  const seccionRegistro = useRef<HTMLDivElement>(null);
 
   const registrados = estado.tipo === "listo" ? estado.datos : [];
 
@@ -134,6 +157,35 @@ export function PaginaRequerimientosLogistica() {
     if (urlVisualizado?.startsWith("blob:")) URL.revokeObjectURL(urlVisualizado);
     setVisualizado(null);
     setUrlVisualizado(null);
+  };
+
+  const duplicar = async (origen: RequerimientoLogisticaDto) => {
+    setDuplicandoId(origen.id);
+    try {
+      const productos = await Promise.all(origen.detalles.map(productoActualizado));
+      const mes = mesSiguiente(origen.mes);
+      formulario.cargarDuplicado(
+        origen.codigo,
+        {
+          mes,
+          area: (AREAS as readonly string[]).includes(origen.area) ? (origen.area as Area) : "",
+          responsable: origen.responsable,
+          revisadoPor: origen.revisadoPor,
+          firmaResponsable: null,
+          firmaRevisor: null,
+          observaciones: origen.observaciones,
+        },
+        productos.map((producto, indice) => ({ producto, disponible: origen.detalles[indice].disponible })),
+      );
+      seccionRegistro.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      notificar({
+        tipo: "exito",
+        titulo: `${origen.codigo} duplicado`,
+        mensaje: `Se copiaron ${productos.length} producto(s) para ${mes}. Revise y edite antes de registrar.`,
+      });
+    } finally {
+      setDuplicandoId(null);
+    }
   };
 
   const registrar = async () => {
@@ -204,11 +256,13 @@ export function PaginaRequerimientosLogistica() {
       </Aparicion>
 
       <Aparicion orden={1}>
-        <SeccionRegistroRequerimiento
-          formulario={formulario}
-          preparandoVistaPrevia={preparandoVistaPrevia}
-          alSolicitarVistaPrevia={solicitarVistaPrevia}
-        />
+        <div ref={seccionRegistro} className="scroll-mt-24">
+          <SeccionRegistroRequerimiento
+            formulario={formulario}
+            preparandoVistaPrevia={preparandoVistaPrevia}
+            alSolicitarVistaPrevia={solicitarVistaPrevia}
+          />
+        </div>
       </Aparicion>
 
       <Aparicion orden={2}>
@@ -218,6 +272,8 @@ export function PaginaRequerimientosLogistica() {
               requerimientos={requerimientos}
               alVer={(requerimiento) => void verRequerimiento(requerimiento)}
               alAprobar={setPorAprobar}
+              alDuplicar={(requerimiento) => void duplicar(requerimiento)}
+              duplicandoId={duplicandoId}
             />
           )}
         </ResultadoConsulta>

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import {
   HiOutlineCube,
+  HiOutlineDocumentDuplicate,
   HiOutlineFlag,
   HiOutlineGlobeAmericas,
   HiOutlineMapPin,
@@ -36,9 +37,11 @@ function TituloBloque({ children }: { children: ReactNode }) {
 interface PropsDetalle {
   preNegociacion: PreNegociacionDto;
   alEditar: () => void;
+  alDuplicar: () => void;
+  duplicando?: boolean;
 }
 
-export function DetallePreNegociacion({ preNegociacion: p, alEditar }: PropsDetalle) {
+export function DetallePreNegociacion({ preNegociacion: p, alEditar, alDuplicar, duplicando = false }: PropsDetalle) {
   return (
     <div className="flex h-full flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
@@ -55,6 +58,16 @@ export function DetallePreNegociacion({ preNegociacion: p, alEditar }: PropsDeta
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Insignia tono={TONO_ESTADO_PRE_NEGOCIACION[p.estado]} texto={p.estado} resaltada />
+          <Boton
+            variante="secundario"
+            tamano="chico"
+            icono={<HiOutlineDocumentDuplicate />}
+            cargando={duplicando}
+            onClick={alDuplicar}
+            title="Crear una nueva pre-negociación a partir de esta"
+          >
+            Duplicar
+          </Boton>
           <Boton variante="exito" tamano="chico" icono={<HiOutlinePencilSquare />} onClick={alEditar}>
             Editar
           </Boton>

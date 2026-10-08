@@ -38,6 +38,8 @@ type ResultadoValidacion =
 export function useFormularioRequerimiento() {
   const [cabecera, setCabecera] = useState<CabeceraRequerimiento>(CABECERA_VACIA);
   const [detalles, setDetalles] = useState<DetalleFormulario[]>([]);
+  /** Código del requerimiento del que se copió el formulario, si es un duplicado. */
+  const [duplicadoDe, setDuplicadoDe] = useState<string | null>(null);
 
   const actualizarCabecera = <K extends keyof CabeceraRequerimiento>(campo: K, valor: CabeceraRequerimiento[K]) =>
     setCabecera((actual) => ({ ...actual, [campo]: valor }));
@@ -50,6 +52,13 @@ export function useFormularioRequerimiento() {
   const reiniciar = () => {
     setCabecera(CABECERA_VACIA);
     setDetalles([]);
+    setDuplicadoDe(null);
+  };
+
+  const cargarDuplicado = (codigoOrigen: string, nuevaCabecera: CabeceraRequerimiento, nuevosDetalles: DetalleFormulario[]) => {
+    setCabecera(nuevaCabecera);
+    setDetalles(nuevosDetalles);
+    setDuplicadoDe(codigoOrigen);
   };
 
   const validar = (): ResultadoValidacion => {
@@ -90,5 +99,15 @@ export function useFormularioRequerimiento() {
     };
   };
 
-  return { cabecera, detalles, actualizarCabecera, agregarDetalle, quitarDetalle, reiniciar, validar };
+  return {
+    cabecera,
+    detalles,
+    duplicadoDe,
+    actualizarCabecera,
+    agregarDetalle,
+    quitarDetalle,
+    reiniciar,
+    cargarDuplicado,
+    validar,
+  };
 }

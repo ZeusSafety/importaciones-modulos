@@ -2,7 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
-import { HiOutlineArrowsRightLeft, HiOutlineEllipsisVertical, HiOutlineEye } from "react-icons/hi2";
+import {
+  HiOutlineArrowsRightLeft,
+  HiOutlineDocumentDuplicate,
+  HiOutlineEllipsisVertical,
+  HiOutlineEye,
+} from "react-icons/hi2";
 import { useDesplegable } from "@/modules/shared/presentation/hooks/useDesplegable";
 import { useMontado } from "@/modules/shared/presentation/hooks/useMontado";
 import { ESTADOS_PRE_NEGOCIACION, type EstadoPreNegociacion } from "../../domain/valores";
@@ -18,9 +23,10 @@ interface PropsMenu {
   deshabilitado: boolean;
   alVer: () => void;
   alMover: (estado: EstadoPreNegociacion) => void;
+  alDuplicar: () => void;
 }
 
-export function MenuTarjeta({ etiqueta, estadoActual, deshabilitado, alVer, alMover }: PropsMenu) {
+export function MenuTarjeta({ etiqueta, estadoActual, deshabilitado, alVer, alMover, alDuplicar }: PropsMenu) {
   const montado = useMontado();
   const { disparador, panel, posicion, abierto, abrir, cerrar } = useDesplegable<HTMLButtonElement>({
     alturaMaxima: 320,
@@ -80,6 +86,15 @@ export function MenuTarjeta({ etiqueta, estadoActual, deshabilitado, alVer, alMo
                 >
                   <HiOutlineEye className="h-4 w-4" />
                   Ver detalle
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => elegir(alDuplicar)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-slate-700 transition hover:bg-zeus-celeste hover:text-zeus-tinta"
+                >
+                  <HiOutlineDocumentDuplicate className="h-4 w-4" />
+                  Duplicar
                 </button>
                 <p className="mt-1 flex items-center gap-1.5 border-t border-slate-100 px-2.5 pb-1 pt-2 font-display text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   <HiOutlineArrowsRightLeft className="h-3 w-3" />

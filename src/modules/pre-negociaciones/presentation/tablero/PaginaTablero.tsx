@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { HiOutlineDocumentCurrencyDollar, HiOutlinePlus, HiOutlineViewColumns } from "react-icons/hi2";
+import { HiOutlineDocumentCurrencyDollar, HiOutlineViewColumns } from "react-icons/hi2";
 import { mensajeDeError } from "@/modules/shared/infrastructure/http/clienteHttp";
 import { useConsulta } from "@/modules/shared/presentation/hooks/useConsulta";
 import { Aparicion } from "@/modules/shared/presentation/ui/Aparicion";
-import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { Modal } from "@/modules/shared/presentation/ui/Modal";
 import { useNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
 import { ResultadoConsulta } from "@/modules/shared/presentation/ui/ResultadoConsulta";
@@ -14,7 +13,7 @@ import type { PreNegociacionDto } from "../../application/dto";
 import { paisesFueraDelCatalogo } from "../../domain/origenesImportacion";
 import { ESTADOS_PRE_NEGOCIACION, etiquetaPreNegociacion, type EstadoPreNegociacion } from "../../domain/valores";
 import { apiPreNegociaciones } from "../apiPreNegociaciones";
-import { ModalFormularioPreNegociacion, type ModoFormulario } from "../formulario/ModalFormularioPreNegociacion";
+import { ModalFormularioPreNegociacion, modoNuevoRegistro, type ModoFormulario } from "../formulario/ModalFormularioPreNegociacion";
 import { DetallePreNegociacion } from "../listado/DetallePreNegociacion";
 import { aplicarFiltros, FILTROS_INICIALES, type FiltrosPreNegociaciones } from "../listado/filtrosPreNegociaciones";
 import { PanelFiltrosPreNegociaciones } from "../listado/PanelFiltrosPreNegociaciones";
@@ -32,7 +31,7 @@ export function PaginaTablero() {
   const [filtros, setFiltros] = useState<FiltrosPreNegociaciones>(FILTROS_INICIALES);
   const [abiertaId, setAbiertaId] = useState<string | null>(null);
   const [modo, setModo] = useState<ModoFormulario | null>(null);
-  const [abriendoRegistro, setAbriendoRegistro] = useState(false);
+  const [duplicando, setDuplicando] = useState(false);
 
   const todas = estado.tipo === "listo" ? estado.datos.map((p) => cambios.get(p.id) ?? p) : [];
   const visibles = aplicarFiltros(todas, filtros);
@@ -74,15 +73,15 @@ export function PaginaTablero() {
     setCambios(new Map());
   };
 
-  const abrirRegistro = async () => {
-    setAbriendoRegistro(true);
+  const duplicar = async (origen: PreNegociacionDto) => {
+    setDuplicando(true);
     try {
       const { numero } = await apiPreNegociaciones.siguienteNumero();
-      setModo({ tipo: "registro", apertura: Date.now(), numero });
+      setModo(modoNuevoRegistro(numero, origen));
     } catch (error) {
-      notificar({ tipo: "error", titulo: "No se pudo abrir el registro", mensaje: mensajeDeError(error) });
+      notificar({ tipo: "error", titulo: "No se pudo duplicar", mensaje: mensajeDeError(error) });
     } finally {
-      setAbriendoRegistro(false);
+      setDuplicando(false);
     }
   };
 
@@ -130,6 +129,7 @@ export function PaginaTablero() {
                           moviendo={moviendo.has(p.id)}
                           alAbrir={() => setAbiertaId(p.id)}
                           alMover={(destino) => void mover(p.id, destino)}
+                          alDuplicar={() => void duplicar(p)}
                           alIniciarArrastre={() => setArrastrandoId(p.id)}
                           alTerminarArrastre={() => setArrastrandoId(null)}
                         />
@@ -156,6 +156,8 @@ export function PaginaTablero() {
             <DetallePreNegociacion
               preNegociacion={abierta}
               alEditar={() => setModo({ tipo: "edicion", apertura: Date.now(), preNegociacion: abierta })}
+              alDuplicar={() => void duplicar(abierta)}
+              duplicando={duplicando}
             />
           </div>
         )}

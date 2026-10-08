@@ -77,6 +77,27 @@ export function formularioDesde(dto: PreNegociacionDto): FormularioPreNegociacio
   };
 }
 
+/**
+ * Copia para registrar una pre-negociación parecida (p. ej. el mismo producto del mes anterior):
+ * conserva los datos generales y los proveedores, pero el estado, los resultados, los contactos
+ * y los archivos empiezan de cero porque pertenecen a la negociación original.
+ */
+export function formularioDuplicado(dto: PreNegociacionDto): FormularioPreNegociacion {
+  return {
+    tipoCarga: dto.tipoCarga,
+    productos: dto.productos,
+    pais: dto.pais,
+    puerto: dto.puerto,
+    registradoPor: dto.registradoPor,
+    estado: ESTADO_INICIAL_PRE_NEGOCIACION,
+    cotizaciones: dto.cotizaciones.map((cotizacion) => ({
+      ...nuevaCotizacion(),
+      proveedor: cotizacion.proveedor,
+      productos: cotizacion.productos,
+    })),
+  };
+}
+
 export function nuevoContacto(orden: number): ContactoFormulario {
   return {
     id: crypto.randomUUID(),

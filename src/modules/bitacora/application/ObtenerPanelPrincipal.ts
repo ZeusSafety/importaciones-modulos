@@ -25,6 +25,38 @@ export interface PanelPrincipalDto {
   readonly cotizacionesPorEstado: Record<EstadoCotizacionReporte, number>;
   readonly ultimasPreNegociaciones: PreNegociacionDto[];
   readonly eventosRecientes: EventoBitacora[];
+  /** Ordenados de mayor a menor cantidad de pre-negociaciones. */
+  readonly origenes: OrigenPanelDto[];
+}
+
+export interface OrigenPanelDto {
+  readonly pais: string;
+  readonly preNegociaciones: number;
+  readonly negociaciones: number;
+  readonly puertos: readonly { readonly puerto: string; readonly preNegociaciones: number; readonly negociaciones: number }[];
+}
+
+function agruparOrigenes(registros: readonly PreNegociacionDto[]): OrigenPanelDto[] {
+  const porPais = new Map<string, Map<string, { preNegociaciones: number; negociaciones: number }>>();
+  for (const { pais, puerto, cotizaciones } of registros) {
+    const puertos = porPais.get(pais) ?? new Map();
+    const actual = puertos.get(puerto) ?? { preNegociaciones: 0, negociaciones: 0 };
+    puertos.set(puerto, { preNegociaciones: actual.preNegociaciones + 1, negociaciones: actual.negociaciones + cotizaciones.length });
+    porPais.set(pais, puertos);
+  }
+  return [...porPais]
+    .map(([pais, puertos]) => {
+      const lista = [...puertos]
+        .map(([puerto, conteo]) => ({ puerto, ...conteo }))
+        .sort((a, b) => b.preNegociaciones - a.preNegociaciones || a.puerto.localeCompare(b.puerto, "es"));
+      return {
+        pais,
+        preNegociaciones: lista.reduce((suma, p) => suma + p.preNegociaciones, 0),
+        negociaciones: lista.reduce((suma, p) => suma + p.negociaciones, 0),
+        puertos: lista,
+      };
+    })
+    .sort((a, b) => b.preNegociaciones - a.preNegociaciones || a.pais.localeCompare(b.pais, "es"));
 }
 
 const LIMITE_EVENTOS = 12;
@@ -75,6 +107,7 @@ export class ObtenerPanelPrincipal {
         .sort((a, b) => b.actualizadoEn.localeCompare(a.actualizadoEn))
         .slice(0, LIMITE_ULTIMAS),
       eventosRecientes,
+      origenes: agruparOrigenes(registros),
     };
   }
 }

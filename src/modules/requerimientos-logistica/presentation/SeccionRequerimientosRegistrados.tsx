@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FaFilePdf } from "react-icons/fa6";
-import { HiOutlineCheckBadge, HiOutlineDocumentText, HiOutlineInboxStack } from "react-icons/hi2";
+import { HiOutlineCheckBadge, HiOutlineDocumentDuplicate, HiOutlineDocumentText, HiOutlineInboxStack } from "react-icons/hi2";
 import { formatearFechaHora } from "@/modules/shared/domain/fechas";
 import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
 import { Paginacion, paginar } from "@/modules/shared/presentation/ui/Paginacion";
@@ -15,9 +15,17 @@ interface PropsSeccionRegistrados {
   requerimientos: RequerimientoLogisticaDto[];
   alVer: (requerimiento: RequerimientoLogisticaDto) => void;
   alAprobar: (requerimiento: RequerimientoLogisticaDto) => void;
+  alDuplicar: (requerimiento: RequerimientoLogisticaDto) => void;
+  duplicandoId: string | null;
 }
 
-export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alAprobar }: PropsSeccionRegistrados) {
+export function SeccionRequerimientosRegistrados({
+  requerimientos,
+  alVer,
+  alAprobar,
+  alDuplicar,
+  duplicandoId,
+}: PropsSeccionRegistrados) {
   const [pagina, setPagina] = useState(1);
   const vista = paginar(requerimientos, pagina, POR_PAGINA);
   const pendientes = requerimientos.filter((r) => r.aprobacion === null).length;
@@ -42,6 +50,7 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                   <th className="px-5 py-3 text-center">Archivo</th>
                   <th className="px-5 py-3">Aprobación</th>
                   <th className="px-5 py-3 text-center">Estado</th>
+                  <th className="px-5 py-3 text-center">Duplicar</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -87,6 +96,22 @@ export function SeccionRequerimientosRegistrados({ requerimientos, alVer, alApro
                       ) : (
                         <Insignia tono="exito" texto="Aprobado" resaltada />
                       )}
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => alDuplicar(requerimiento)}
+                        disabled={duplicandoId !== null}
+                        title={`Copiar ${requerimiento.codigo} al formulario para el siguiente mes`}
+                        aria-label={`Duplicar ${requerimiento.codigo}`}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600 transition hover:-translate-y-0.5 hover:bg-violet-100 hover:shadow-sm disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        {duplicandoId === requerimiento.id ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" />
+                        ) : (
+                          <HiOutlineDocumentDuplicate className="h-5 w-5" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}

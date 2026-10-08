@@ -20,6 +20,8 @@ interface PropsMaestroDetalle {
   listaVisible: boolean;
   alSeleccionar: (preNegociacion: PreNegociacionDto) => void;
   alEditar: (preNegociacion: PreNegociacionDto) => void;
+  alDuplicar: (preNegociacion: PreNegociacionDto) => void;
+  duplicando: boolean;
   alVolver: () => void;
 }
 
@@ -29,6 +31,8 @@ export function VistaMaestroDetalle({
   listaVisible,
   alSeleccionar,
   alEditar,
+  alDuplicar,
+  duplicando,
   alVolver,
 }: PropsMaestroDetalle) {
   const [pagina, setPagina] = useState(() => {
@@ -100,7 +104,12 @@ export function VistaMaestroDetalle({
             animate={{ opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE } }}
             exit={{ opacity: 0, y: -6, transition: { duration: 0.15 } }}
           >
-            <DetallePreNegociacion preNegociacion={seleccionada} alEditar={() => alEditar(seleccionada)} />
+            <DetallePreNegociacion
+              preNegociacion={seleccionada}
+              alEditar={() => alEditar(seleccionada)}
+              alDuplicar={() => alDuplicar(seleccionada)}
+              duplicando={duplicando}
+            />
           </motion.div>
         </AnimatePresence>
       </motion.div>

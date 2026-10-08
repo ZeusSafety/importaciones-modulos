@@ -7,10 +7,12 @@ import {
   HiOutlineArrowTrendingDown,
   HiOutlineClipboardDocumentList,
   HiOutlineCube,
+  HiOutlineDocumentDuplicate,
   HiOutlineDocumentText,
   HiOutlinePlus,
   HiOutlineQrCode,
   HiOutlineTrash,
+  HiOutlineXMark,
 } from "react-icons/hi2";
 import type { Producto } from "@/modules/catalogo-productos/domain/Producto";
 import { Boton } from "@/modules/shared/presentation/ui/Boton";
@@ -33,7 +35,7 @@ interface PropsSeccionRegistro {
 
 export function SeccionRegistroRequerimiento({ formulario, preparandoVistaPrevia, alSolicitarVistaPrevia }: PropsSeccionRegistro) {
   const notificar = useNotificaciones();
-  const { cabecera, detalles, actualizarCabecera, agregarDetalle, quitarDetalle } = formulario;
+  const { cabecera, detalles, duplicadoDe, actualizarCabecera, agregarDetalle, quitarDetalle, reiniciar } = formulario;
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
   const [disponible, setDisponible] = useState<Disponibilidad | "">("");
   const [versionBuscador, setVersionBuscador] = useState(0);
@@ -61,6 +63,32 @@ export function SeccionRegistroRequerimiento({ formulario, preparandoVistaPrevia
       titulo="Registro de requerimientos"
       subtitulo="Control mensual de stock"
     >
+      <AnimatePresence initial={false}>
+        {duplicadoDe !== null && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div className="mb-5 flex flex-wrap items-start gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#8b5cf6] to-[#6d28d9] text-white shadow-md shadow-violet-500/30">
+                <HiOutlineDocumentDuplicate className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1 text-xs leading-relaxed text-slate-600">
+                <p className="font-display text-sm font-semibold text-slate-900">Copia de {duplicadoDe}</p>
+                Se copiaron la cabecera y los productos con el stock actual del catálogo; el mes pasó al siguiente y las firmas
+                quedan vacías. Edite lo que necesite antes de registrar; el original no se modifica.
+              </div>
+              <Boton variante="fantasma" tamano="chico" icono={<HiOutlineXMark />} onClick={reiniciar}>
+                Descartar copia
+              </Boton>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Campo etiqueta="Mes">
           {(id) => (

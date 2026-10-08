@@ -16,6 +16,7 @@ interface PropsTarjeta {
   moviendo: boolean;
   alAbrir: () => void;
   alMover: (estado: EstadoPreNegociacion) => void;
+  alDuplicar: () => void;
   alIniciarArrastre: () => void;
   alTerminarArrastre: () => void;
 }
@@ -29,7 +30,7 @@ function iniciales(nombre: string): string {
     .join("");
 }
 
-export function TarjetaTablero({ preNegociacion: p, moviendo, alAbrir, alMover, alIniciarArrastre, alTerminarArrastre }: PropsTarjeta) {
+export function TarjetaTablero({ preNegociacion: p, moviendo, alAbrir, alMover, alDuplicar, alIniciarArrastre, alTerminarArrastre }: PropsTarjeta) {
   const etiqueta = etiquetaPreNegociacion(p.numero);
   const contactos = p.cotizaciones.reduce((total, c) => total + c.contactos.length, 0);
   const proveedores = p.cotizaciones.map((c) => c.proveedor);
@@ -64,7 +65,7 @@ export function TarjetaTablero({ preNegociacion: p, moviendo, alAbrir, alMover, 
                 {p.productos}
               </h3>
             </button>
-            <MenuTarjeta etiqueta={etiqueta} estadoActual={p.estado} deshabilitado={moviendo} alVer={alAbrir} alMover={alMover} />
+            <MenuTarjeta etiqueta={etiqueta} estadoActual={p.estado} deshabilitado={moviendo} alVer={alAbrir} alMover={alMover} alDuplicar={alDuplicar} />
           </div>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

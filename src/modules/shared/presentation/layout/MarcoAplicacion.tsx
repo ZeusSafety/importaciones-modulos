@@ -8,7 +8,13 @@ import { BotonPantallaCompleta, BotonTema, ESTILO_BOTON_CABECERA, RelojCabecera 
 
 const TRANSICION = { duration: 0.34, ease: [0.22, 1, 0.36, 1] } as const;
 
-export function MarcoAplicacion({ children }: { children: ReactNode }) {
+interface PropsMarco {
+  children: ReactNode;
+  /** Controles de otros módulos que se muestran antes de los botones fijos de la cabecera. */
+  accionesCabecera?: ReactNode;
+}
+
+export function MarcoAplicacion({ children, accionesCabecera }: PropsMarco) {
   const [colapsada, setColapsada] = useState(false);
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
@@ -65,6 +71,7 @@ export function MarcoAplicacion({ children }: { children: ReactNode }) {
             </p>
           </div>
           <div className="flex items-center gap-2 lg:gap-3">
+            {accionesCabecera}
             <BotonPantallaCompleta />
             <BotonTema />
             <RelojCabecera />
