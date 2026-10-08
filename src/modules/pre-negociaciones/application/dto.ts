@@ -27,7 +27,12 @@ export const esquemaGuardarPreNegociacion = z.object({
   cotizaciones: z.array(esquemaCotizacion),
 });
 
+export const esquemaCambiarEstadoPreNegociacion = z.object({
+  estado: z.enum(ESTADOS_PRE_NEGOCIACION),
+});
+
 export type GuardarPreNegociacionDto = z.infer<typeof esquemaGuardarPreNegociacion>;
+export type CambiarEstadoPreNegociacionDto = z.infer<typeof esquemaCambiarEstadoPreNegociacion>;
 export type CotizacionEntradaDto = GuardarPreNegociacionDto["cotizaciones"][number];
 export type ContactoEntradaDto = CotizacionEntradaDto["contactos"][number];
 

@@ -1,0 +1,269 @@
+/* Pantalla de carga del sistema Zeus: camión con el logo recorriendo la pista. */
+
+.zeus-carga {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(165deg, #003b75 0%, #002d5a 42%, #001f3d 100%);
+}
+
+.zeus-carga__brillo {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(72px);
+  opacity: 0.35;
+  animation: zeus-carga-brillo 6s ease-in-out infinite;
+}
+
+.zeus-carga__brillo--1 {
+  width: 480px;
+  height: 480px;
+  top: -140px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(0, 91, 187, 0.5) 0%, transparent 72%);
+}
+
+.zeus-carga__brillo--2 {
+  width: 400px;
+  height: 400px;
+  bottom: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(0, 45, 90, 0.65) 0%, transparent 72%);
+  animation-delay: -2s;
+}
+
+.zeus-carga__haz {
+  position: absolute;
+  bottom: 28%;
+  left: -10%;
+  width: 70%;
+  height: 140px;
+  background: linear-gradient(95deg, rgba(255, 252, 171, 0.18) 0%, rgba(255, 252, 171, 0.06) 35%, transparent 75%);
+  filter: blur(28px);
+  pointer-events: none;
+  animation: zeus-carga-haz 3s ease-in-out infinite;
+}
+
+.zeus-carga__cuadricula {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 15%, transparent 100%);
+  pointer-events: none;
+}
+
+.zeus-carga__contenido {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.zeus-carga__escena {
+  width: 240px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+  overflow-x: hidden;
+}
+
+.zeus-carga__camion {
+  width: 156px;
+  margin-bottom: 6px;
+  position: relative;
+  animation: zeus-carga-camion 1s linear infinite;
+}
+
+.zeus-carga__logo {
+  position: absolute;
+  left: 4.5%;
+  top: 6%;
+  width: 58%;
+  height: 78%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.zeus-carga__llantas {
+  width: 156px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px 0 18px;
+  position: absolute;
+  bottom: 0;
+}
+
+.zeus-carga__llantas svg {
+  width: 28px;
+}
+
+.zeus-carga__pista {
+  width: 100%;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.25);
+  position: relative;
+  align-self: flex-end;
+  border-radius: 3px;
+}
+
+.zeus-carga__pista::before,
+.zeus-carga__pista::after {
+  content: "";
+  position: absolute;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+  animation: zeus-carga-pista 1.4s linear infinite;
+}
+
+.zeus-carga__pista::before {
+  width: 20px;
+  right: -50%;
+  border-left: 10px solid rgba(255, 252, 171, 0.85);
+}
+
+.zeus-carga__pista::after {
+  width: 10px;
+  right: -65%;
+  border-left: 4px solid rgba(255, 252, 171, 0.85);
+}
+
+.zeus-carga__poste {
+  position: absolute;
+  bottom: 0;
+  right: -90%;
+  height: 90px;
+  fill: rgba(255, 255, 255, 0.35);
+  animation: zeus-carga-pista 1.4s linear infinite;
+}
+
+.zeus-carga__texto {
+  text-align: center;
+  font-family: var(--font-poppins), sans-serif;
+  color: #e9f1ff;
+  max-width: 22rem;
+  padding: 0 1rem;
+}
+
+.zeus-carga__titulo {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.35rem;
+}
+
+.zeus-carga__subtitulo {
+  font-size: 0.875rem;
+  color: rgba(233, 241, 255, 0.75);
+  margin: 0;
+}
+
+.zeus-carga__puntos::after {
+  content: "";
+  animation: zeus-carga-puntos 1.5s steps(4, end) infinite;
+}
+
+.zeus-carga__progreso {
+  width: min(18rem, 78vw);
+}
+
+.zeus-carga__progreso-pista {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(233, 241, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.zeus-carga__progreso-relleno {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #93c5fd 0%, #fffcab 55%, #e9f1ff 100%);
+  box-shadow: 0 0 12px rgba(255, 252, 171, 0.35);
+  animation: zeus-carga-progreso linear forwards;
+}
+
+@keyframes zeus-carga-camion {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes zeus-carga-pista {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-350px);
+  }
+}
+
+@keyframes zeus-carga-brillo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.55;
+  }
+}
+
+@keyframes zeus-carga-haz {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateX(12px);
+  }
+}
+
+@keyframes zeus-carga-progreso {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes zeus-carga-puntos {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}

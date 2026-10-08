@@ -3,6 +3,7 @@ import type { EstadoCotizacion, EstadoPreNegociacion } from "../domain/valores";
 
 export const TONO_ESTADO_PRE_NEGOCIACION: Record<EstadoPreNegociacion, TonoInsignia> = {
   "EN PROCESO": "advertencia",
+  "EN PAUSA": "pausa",
   COMPLETADO: "exito",
   ANULADO: "peligro",
 };

@@ -191,8 +191,16 @@ export class PreNegociacion {
     });
   }
 
+  cambiarEstado(estado: EstadoPreNegociacion, ahora: string): PreNegociacion {
+    return new PreNegociacion({ ...this.estado, estado, actualizadoEn: ahora });
+  }
+
   get id(): string {
     return this.estado.id;
+  }
+
+  get estadoActual(): EstadoPreNegociacion {
+    return this.estado.estado;
   }
 
   get numero(): number {

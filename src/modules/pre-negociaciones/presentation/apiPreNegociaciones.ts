@@ -8,6 +8,8 @@ import type {
   PreNegociacionDto,
   SiguienteNumeroPreNegociacionDto,
 } from "../application/dto";
+import { PreNegociacion } from "../domain/PreNegociacion";
+import type { EstadoPreNegociacion } from "../domain/valores";
 
 const BASE = "/api/pre-negociaciones";
 const COLECCION_LOCAL = "pre-negociaciones";
@@ -33,10 +35,37 @@ async function subirArchivoLocal(archivo: File, subidoPor: string): Promise<Arch
   return aArchivoAdjuntoDto(creado);
 }
 
+/** Una copia del navegador más reciente que la del servidor es un cambio que el servidor publicado no pudo guardar. */
+function combinarConNavegador(remotas: PreNegociacionDto[], locales: PreNegociacionDto[]): PreNegociacionDto[] {
+  const localPorId = new Map(locales.map((local) => [local.id, local]));
+  const vigentes = remotas.map((remota) => {
+    const local = localPorId.get(remota.id);
+    return local && local.actualizadoEn > remota.actualizadoEn ? local : remota;
+  });
+  return combinarPorId(vigentes, locales);
+}
+
+function cambiarEstadoLocal(preNegociacion: PreNegociacionDto, estado: EstadoPreNegociacion): PreNegociacionDto {
+  const actualizada = PreNegociacion.desdePrimitivos(preNegociacion)
+    .cambiarEstado(estado, new Date().toISOString())
+    .aPrimitivos();
+  guardarPreNegociacionLocal(actualizada);
+  return actualizada;
+}
+
 export const apiPreNegociaciones = {
   listar: async () => {
     const remotas = await obtenerJson<PreNegociacionDto[]>(BASE);
-    return combinarPorId(remotas, leerColeccion<PreNegociacionDto>(COLECCION_LOCAL));
+    return combinarConNavegador(remotas, leerColeccion<PreNegociacionDto>(COLECCION_LOCAL));
+  },
+  cambiarEstado: async (preNegociacion: PreNegociacionDto, estado: EstadoPreNegociacion) => {
+    if (esPreNegociacionLocal(preNegociacion.id)) return cambiarEstadoLocal(preNegociacion, estado);
+    try {
+      return await enviarJson<PreNegociacionDto>(`${BASE}/${preNegociacion.id}/estado`, "PATCH", { estado });
+    } catch (error) {
+      if (!esAlmacenamientoNoDisponible(error)) throw error;
+      return cambiarEstadoLocal(preNegociacion, estado);
+    }
   },
   siguienteNumero: async () => {
     const remoto = await obtenerJson<SiguienteNumeroPreNegociacionDto>(`${BASE}/siguiente-numero`);

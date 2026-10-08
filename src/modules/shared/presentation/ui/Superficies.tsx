@@ -36,7 +36,7 @@ interface PropsTarjetaSeccion {
 
 export function TarjetaSeccion({ icono, titulo, subtitulo, acciones, altoCompleto = false, children }: PropsTarjetaSeccion) {
   return (
-    <section className={`overflow-hidden rounded-2xl border border-slate-200/80 bg-superficie shadow-sm ${altoCompleto ? "h-full" : ""}`}>
+    <section className={`overflow-hidden rounded-2xl border border-slate-200/80 bg-superficie shadow-sm ${altoCompleto ? "flex h-full flex-col" : ""}`}>
       <header className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-zeus-celeste text-base text-zeus-tinta">
@@ -49,7 +49,7 @@ export function TarjetaSeccion({ icono, titulo, subtitulo, acciones, altoComplet
         </div>
         {acciones && <div className="flex flex-wrap gap-2">{acciones}</div>}
       </header>
-      <div className="p-5">{children}</div>
+      <div className={`p-5 ${altoCompleto ? "flex flex-1 flex-col" : ""}`}>{children}</div>
     </section>
   );
 }

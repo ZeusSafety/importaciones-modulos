@@ -20,7 +20,7 @@ export function GraficoDona({ series, etiquetaTotal }: PropsGraficoDona) {
   const destacada = activa === null ? null : series[activa];
 
   return (
-    <div className="@container">
+    <div className="@container pb-5">
       <div className="flex flex-col items-center gap-5 @[17rem]:flex-row @[17rem]:gap-4 @md:gap-5">
         <div className="relative h-32 w-32 shrink-0 @md:h-40 @md:w-40">
           <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
@@ -64,14 +64,24 @@ export function GraficoDona({ series, etiquetaTotal }: PropsGraficoDona) {
               key={serie.etiqueta}
               onMouseEnter={() => setActiva(indice)}
               onMouseLeave={() => setActiva(null)}
-              className={`flex items-center gap-2 rounded-lg px-2 py-2 transition-colors @md:gap-2.5 @md:px-2.5 ${activa === indice ? "bg-slate-50" : ""}`}
+              className={`rounded-lg px-2 py-1.5 transition-colors @md:px-2.5 ${activa === indice ? "bg-slate-50" : ""}`}
             >
-              <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${PALETA_GRAFICO[serie.color].punto}`} />
-              <span className="min-w-0 flex-1 truncate font-display text-[11px] font-medium text-slate-700 @md:text-xs" title={serie.descripcion}>
-                {serie.etiqueta}
-              </span>
-              <span className="font-display text-sm font-bold tabular-nums text-slate-900">{serie.valor}</span>
-              <span className="w-9 text-right text-[11px] font-semibold tabular-nums text-slate-400">{porcentaje(serie.valor, total)}%</span>
+              <div className="flex items-center gap-2 @md:gap-2.5">
+                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${PALETA_GRAFICO[serie.color].punto}`} />
+                <span className="min-w-0 flex-1 truncate font-display text-[11px] font-medium text-slate-700 @md:text-xs" title={serie.descripcion}>
+                  {serie.etiqueta}
+                </span>
+                <span className="font-display text-sm font-bold tabular-nums text-slate-900">{serie.valor}</span>
+                <span className="w-9 text-right text-[11px] font-semibold tabular-nums text-slate-400">{porcentaje(serie.valor, total)}%</span>
+              </div>
+              <div className="ml-[18px] mt-1 h-1 overflow-hidden rounded-full bg-slate-100 @md:ml-5">
+                <motion.div
+                  className={`h-full rounded-full ${PALETA_GRAFICO[serie.color].punto}`}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${porcentaje(serie.valor, total)}%` }}
+                  transition={{ ...TRANSICION_GRAFICO, delay: 0.3 + indice * 0.08 }}
+                />
+              </div>
             </li>
           ))}
         </ul>

@@ -34,6 +34,13 @@ const COLORES_TONO: Record<TonoInsignia, { disparador: string; texto: string; pu
     activa: "bg-[#ef4444]/12 text-[#b91c1c] dark:text-[#fca5a5]",
     seleccionada: "bg-gradient-to-r from-[#f43f5e] to-[#dc2626] text-white",
   },
+  pausa: {
+    disparador: "border-[#8b5cf6]/70 bg-[#8b5cf6]/10 ring-[#8b5cf6]/15",
+    texto: "text-[#6d28d9] dark:text-[#c4b5fd]",
+    punto: "bg-[#8b5cf6]",
+    activa: "bg-[#8b5cf6]/12 text-[#6d28d9] dark:text-[#c4b5fd]",
+    seleccionada: "bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] text-white",
+  },
   info: {
     disparador: "border-[#3b82f6]/70 bg-[#3b82f6]/10 ring-[#3b82f6]/15",
     texto: "text-[#1d4ed8] dark:text-[#93c5fd]",

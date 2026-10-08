@@ -23,7 +23,7 @@ export async function obtenerJson<T>(url: string): Promise<T> {
   return procesarRespuesta<T>(await fetch(url, { cache: "no-store" }));
 }
 
-export async function enviarJson<T>(url: string, metodo: "POST" | "PUT", cuerpo: unknown): Promise<T> {
+export async function enviarJson<T>(url: string, metodo: "POST" | "PUT" | "PATCH", cuerpo: unknown): Promise<T> {
   return procesarRespuesta<T>(
     await fetch(url, {
       method: metodo,

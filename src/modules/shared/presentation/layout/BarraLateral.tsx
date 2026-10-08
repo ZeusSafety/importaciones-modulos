@@ -72,13 +72,11 @@ export function BarraLateral({ colapsada, alNavegar, variante }: PropsBarraLater
                         </motion.span>
                       )}
                       <span
-                        className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                          activo
-                            ? "bg-zeus-azul text-white shadow-md shadow-zeus-azul/25"
-                            : "bg-zeus-celeste text-zeus-tinta group-hover:bg-zeus-azul/10"
+                        className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-zeus-azul-medio to-zeus-azul text-white shadow-md shadow-zeus-azul/25 transition-transform duration-200 group-hover:scale-105 ${
+                          activo ? "ring-2 ring-zeus-dorado/80 ring-offset-1 ring-offset-zeus-celeste" : ""
                         }`}
                       >
-                        <Icono className="h-[18px] w-[18px]" />
+                        <Icono className="h-[17px] w-[17px]" />
                       </span>
                       {!colapsada && <span className="relative font-display">{etiqueta}</span>}
                     </Link>

@@ -11,6 +11,7 @@ import { BuscarProductos } from "@/modules/catalogo-productos/application/Buscar
 import { RepositorioProductosJson } from "@/modules/catalogo-productos/infrastructure/RepositorioProductosJson";
 import {
   ActualizarPreNegociacion,
+  CambiarEstadoPreNegociacion,
   ListarPreNegociaciones,
   ObtenerSiguienteNumeroPreNegociacion,
   RegistrarPreNegociacion,
@@ -70,6 +71,7 @@ function crearContenedor() {
         generadorId,
       ),
       actualizar: new ActualizarPreNegociacion(repositorioPreNegociaciones, repositorioArchivos, bitacora, reloj),
+      cambiarEstado: new CambiarEstadoPreNegociacion(repositorioPreNegociaciones, bitacora, reloj),
       listar: new ListarPreNegociaciones(repositorioPreNegociaciones),
       siguienteNumero: new ObtenerSiguienteNumeroPreNegociacion(repositorioPreNegociaciones),
     },

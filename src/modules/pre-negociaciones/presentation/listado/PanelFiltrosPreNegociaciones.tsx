@@ -17,14 +17,22 @@ interface PropsPanelFiltros {
   filtros: FiltrosPreNegociaciones;
   alCambiar: (filtros: FiltrosPreNegociaciones) => void;
   paisesAdicionales: readonly string[];
+  /** En el tablero las columnas ya separan por estado. */
+  sinEstado?: boolean;
 }
 
-export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicionales }: PropsPanelFiltros) {
+export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicionales, sinEstado = false }: PropsPanelFiltros) {
   const cambiar = <K extends keyof FiltrosPreNegociaciones>(clave: K, valor: FiltrosPreNegociaciones[K]) => alCambiar({ ...filtros, [clave]: valor });
 
   return (
     <section className="@container rounded-2xl border border-slate-200/80 bg-superficie p-4 shadow-sm sm:p-5">
-      <div className="grid items-end gap-3 @xl:grid-cols-2 @5xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))_minmax(0,1.35fr)_auto]">
+      <div
+        className={`grid items-end gap-3 @xl:grid-cols-2 ${
+          sinEstado
+            ? "@5xl:grid-cols-[minmax(0,1.6fr)_repeat(2,minmax(0,1fr))_minmax(0,1.35fr)_auto]"
+            : "@5xl:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))_minmax(0,1.35fr)_auto]"
+        }`}
+      >
         <Campo etiqueta="Buscar" className="@xl:col-span-2 @5xl:col-span-1">
           {(id) => (
             <div className="relative">
@@ -41,18 +49,20 @@ export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicion
             </div>
           )}
         </Campo>
-        <Campo etiqueta="Estado">
-          {(id) => (
-            <Selector
-              id={id}
-              valor={filtros.estado}
-              opciones={OPCIONES_ESTADO}
-              tonos={TONOS_FILTRO_ESTADO}
-              alCambiar={(valor) => cambiar("estado", valor)}
-              marcador="Todos"
-            />
-          )}
-        </Campo>
+        {!sinEstado && (
+          <Campo etiqueta="Estado">
+            {(id) => (
+              <Selector
+                id={id}
+                valor={filtros.estado}
+                opciones={OPCIONES_ESTADO}
+                tonos={TONOS_FILTRO_ESTADO}
+                alCambiar={(valor) => cambiar("estado", valor)}
+                marcador="Todos"
+              />
+            )}
+          </Campo>
+        )}
         <Campo etiqueta="Tipo de carga">
           {(id) => (
             <Selector id={id} valor={filtros.tipoCarga} opciones={OPCIONES_TIPO_CARGA} alCambiar={(valor) => cambiar("tipoCarga", valor)} marcador="Todos" />

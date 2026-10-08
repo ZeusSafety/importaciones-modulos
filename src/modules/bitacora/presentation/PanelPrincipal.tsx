@@ -35,6 +35,7 @@ import { TarjetaIndicador } from "./TarjetaIndicador";
 
 const COLOR_ESTADO_DESPACHO: Record<EstadoPreNegociacion, ColorGrafico> = {
   "EN PROCESO": "naranja",
+  "EN PAUSA": "violeta",
   COMPLETADO: "verde",
   ANULADO: "rojo",
 };
@@ -72,6 +73,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
   }));
   const seriesCotizaciones = series(ESTADOS_COTIZACION_REPORTE, panel.cotizacionesPorEstado, COLOR_COTIZACION);
   const aceptadas = seriesCotizaciones[ESTADOS_COTIZACION_REPORTE.indexOf("ACEPTADO")];
+  const porDefinir = seriesCotizaciones[ESTADOS_COTIZACION_REPORTE.indexOf("POR DEFINIR")];
   const cotizacionesPorProveedor = totales.proveedores === 0 ? "0.0" : (totales.cotizaciones / totales.proveedores).toFixed(1);
 
   return (
@@ -86,7 +88,10 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             acento="azul"
             icono={<HiOutlineClipboardDocumentList />}
             etiqueta="Pre-negociaciones"
+            descripcion="Despachos por estado"
             valor={totales.preNegociaciones}
+            unidad={totales.preNegociaciones === 1 ? "despacho" : "despachos"}
+            ruta={RUTAS.tablero}
             pie={{ tipo: "distribucion", series: seriesDespachos }}
           />
         </Aparicion>
@@ -95,7 +100,10 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             acento="verde"
             icono={<HiOutlineDocumentCurrencyDollar />}
             etiqueta="Negociaciones"
+            descripcion="Cotizaciones por resultado"
             valor={totales.cotizaciones}
+            unidad={totales.cotizaciones === 1 ? "cotización" : "cotizaciones"}
+            ruta={RUTAS.cotizaciones}
             pie={{ tipo: "distribucion", series: seriesCotizaciones }}
           />
         </Aparicion>
@@ -104,8 +112,11 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             acento="dorado"
             icono={<HiOutlineBuildingOffice2 />}
             etiqueta="Proveedores cotizados"
+            descripcion="Proveedores distintos"
             valor={totales.proveedores}
-            pie={{ tipo: "texto", resaltado: cotizacionesPorProveedor, detalle: "negociaciones por proveedor" }}
+            unidad={totales.proveedores === 1 ? "proveedor" : "proveedores"}
+            ruta={RUTAS.cotizaciones}
+            pie={{ tipo: "dato", etiqueta: "Promedio", valor: cotizacionesPorProveedor, detalle: "negociaciones por proveedor" }}
           />
         </Aparicion>
         <Aparicion orden={4}>
@@ -113,8 +124,11 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             acento="violeta"
             icono={<HiOutlineClipboardDocumentCheck />}
             etiqueta="Requerimientos importación"
+            descripcion="Formatos de logística"
             valor={totales.requerimientos}
-            pie={{ tipo: "texto", resaltado: "REG_LOG", detalle: "formatos registrados" }}
+            unidad={totales.requerimientos === 1 ? "requerimiento" : "requerimientos"}
+            ruta={RUTAS.requerimientosLogistica}
+            pie={{ tipo: "dato", etiqueta: "Formato", valor: "REG_LOG", detalle: "requerimiento de logística" }}
           />
         </Aparicion>
       </div>
@@ -132,7 +146,19 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           </TarjetaSeccion>
         </Aparicion>
         <Aparicion orden={7}>
-          <TarjetaSeccion altoCompleto icono={<HiOutlineInboxStack />} titulo="Negociaciones" subtitulo="Resultado por proveedor">
+          <TarjetaSeccion
+            altoCompleto
+            icono={<HiOutlineInboxStack />}
+            titulo="Negociaciones"
+            subtitulo="Tasa de aceptación por proveedor"
+            acciones={
+              porDefinir.valor > 0 && (
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 font-display text-[11px] font-semibold text-slate-600">
+                  {porDefinir.valor} por definir
+                </span>
+              )
+            }
+          >
             <GraficoMedidor series={seriesCotizaciones} destacada={aceptadas} etiquetaDestacada="Tasa de aceptación" />
           </TarjetaSeccion>
         </Aparicion>

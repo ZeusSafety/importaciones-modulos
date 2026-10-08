@@ -20,6 +20,7 @@ const COLUMNA_ESTADO = COLUMNAS.length - 1;
 
 const COLORES_ESTADO: Record<EstadoPreNegociacion, { readonly texto: string; readonly fondo: string }> = {
   "EN PROCESO": { texto: "B45309", fondo: "FEF3C7" },
+  "EN PAUSA": { texto: "6D28D9", fondo: "EDE9FE" },
   COMPLETADO: { texto: "047857", fondo: "D1FAE5" },
   ANULADO: { texto: "B91C1C", fondo: "FEE2E2" },
 };

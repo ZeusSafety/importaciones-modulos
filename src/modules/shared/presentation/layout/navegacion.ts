@@ -3,6 +3,7 @@ import {
   HiOutlineClipboardDocumentCheck,
   HiOutlineDocumentCurrencyDollar,
   HiOutlinePresentationChartLine,
+  HiOutlineViewColumns,
 } from "react-icons/hi2";
 
 export interface EnlaceNavegacion {
@@ -20,6 +21,7 @@ export const RUTAS = {
   principal: "/",
   requerimientosLogistica: "/pre-negociacion/requerimientos-logistica",
   cotizaciones: "/pre-negociacion/cotizaciones",
+  tablero: "/pre-negociacion/tablero",
 } as const;
 
 export const SECCIONES_NAVEGACION: readonly SeccionNavegacion[] = [
@@ -36,6 +38,7 @@ export const SECCIONES_NAVEGACION: readonly SeccionNavegacion[] = [
         icono: HiOutlineClipboardDocumentCheck,
       },
       { ruta: RUTAS.cotizaciones, etiqueta: "Negociación", icono: HiOutlineDocumentCurrencyDollar },
+      { ruta: RUTAS.tablero, etiqueta: "Tablero Kanban", icono: HiOutlineViewColumns },
     ],
   },
 ];

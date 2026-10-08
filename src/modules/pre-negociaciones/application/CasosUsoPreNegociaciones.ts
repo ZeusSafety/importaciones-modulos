@@ -6,6 +6,7 @@ import { PreNegociacion } from "../domain/PreNegociacion";
 import type { RepositorioPreNegociaciones } from "../domain/RepositorioPreNegociaciones";
 import { etiquetaPreNegociacion } from "../domain/valores";
 import {
+  esquemaCambiarEstadoPreNegociacion,
   esquemaGuardarPreNegociacion,
   type PreNegociacionDto,
   type SiguienteNumeroPreNegociacionDto,
@@ -67,6 +68,39 @@ export class ActualizarPreNegociacion {
       referencia: etiqueta,
       descripcion: `Se actualizó la ${etiqueta} (estado: ${datos.estado}).`,
       usuario: actualizada.registradoPor,
+    });
+
+    return actualizada.aPrimitivos();
+  }
+}
+
+export class CambiarEstadoPreNegociacion {
+  constructor(
+    private readonly repositorio: RepositorioPreNegociaciones,
+    private readonly bitacora: RegistradorBitacora,
+    private readonly reloj: Reloj,
+  ) {}
+
+  async ejecutar(id: string, entrada: unknown): Promise<PreNegociacionDto> {
+    const { estado } = esquemaCambiarEstadoPreNegociacion.parse(entrada);
+    const existente = await this.repositorio.buscarPorId(id);
+    if (!existente) {
+      throw new ErrorNoEncontrado("La pre-negociación que intenta mover no existe.");
+    }
+    const anterior = existente.estadoActual;
+    if (anterior === estado) return existente.aPrimitivos();
+
+    const actualizada = existente.cambiarEstado(estado, this.reloj.ahora().toISOString());
+    await this.repositorio.actualizar(actualizada);
+
+    const etiqueta = etiquetaPreNegociacion(actualizada.numero);
+    await this.bitacora.registrar({
+      modulo: "COTIZACIONES",
+      accion: "CAMBIO DE ESTADO",
+      referencia: etiqueta,
+      descripcion: `La ${etiqueta} pasó de ${anterior} a ${estado} desde el tablero.`,
+      usuario: actualizada.registradoPor,
+      transicion: { desde: anterior, hacia: estado },
     });
 
     return actualizada.aPrimitivos();

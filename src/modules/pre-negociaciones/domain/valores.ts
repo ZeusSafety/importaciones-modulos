@@ -6,7 +6,7 @@ export const TIPOS_CARGA = [
 ] as const;
 export type TipoCarga = (typeof TIPOS_CARGA)[number];
 
-export const ESTADOS_PRE_NEGOCIACION = ["EN PROCESO", "COMPLETADO", "ANULADO"] as const;
+export const ESTADOS_PRE_NEGOCIACION = ["EN PROCESO", "EN PAUSA", "COMPLETADO", "ANULADO"] as const;
 export type EstadoPreNegociacion = (typeof ESTADOS_PRE_NEGOCIACION)[number];
 export const ESTADO_INICIAL_PRE_NEGOCIACION: EstadoPreNegociacion = "EN PROCESO";
 
