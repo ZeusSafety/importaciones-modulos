@@ -101,7 +101,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           <TarjetaIndicador
             acento="verde"
             icono={<HiOutlineDocumentCurrencyDollar />}
-            etiqueta="Negociaciones"
+            etiqueta="Cotizaciones"
             descripcion="Cotizaciones por resultado"
             valor={totales.cotizaciones}
             unidad={totales.cotizaciones === 1 ? "cotización" : "cotizaciones"}
@@ -118,14 +118,14 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             valor={totales.proveedores}
             unidad={totales.proveedores === 1 ? "proveedor" : "proveedores"}
             ruta={RUTAS.cotizaciones}
-            pie={{ tipo: "dato", etiqueta: "Promedio", valor: cotizacionesPorProveedor, detalle: "negociaciones por proveedor" }}
+            pie={{ tipo: "dato", etiqueta: "Promedio", valor: cotizacionesPorProveedor, detalle: "cotizaciones por proveedor" }}
           />
         </Aparicion>
         <Aparicion orden={4}>
           <TarjetaIndicador
             acento="violeta"
             icono={<HiOutlineClipboardDocumentCheck />}
-            etiqueta="Requerimientos importación"
+            etiqueta="Requerimientos logística"
             descripcion="Formatos de logística"
             valor={totales.requerimientos}
             unidad={totales.requerimientos === 1 ? "requerimiento" : "requerimientos"}
@@ -151,7 +151,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           <TarjetaSeccion
             altoCompleto
             icono={<HiOutlineInboxStack />}
-            titulo="Negociaciones"
+            titulo="Cotizaciones"
             subtitulo="Tasa de aceptación por proveedor"
             acciones={
               porDefinir.valor > 0 && (
@@ -190,7 +190,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
             }
           >
             {panel.ultimasPreNegociaciones.length === 0 ? (
-              <EstadoVacio icono={<HiOutlineDocumentCurrencyDollar />} titulo="Sin pre-negociaciones" descripcion="Registre la primera desde el módulo Negociación." />
+              <EstadoVacio icono={<HiOutlineDocumentCurrencyDollar />} titulo="Sin pre-negociaciones" descripcion="Registre la primera desde el módulo Cotizaciones." />
             ) : (
               <ContenedorTabla>
                 <div className="overflow-x-auto">

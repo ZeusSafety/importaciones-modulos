@@ -29,7 +29,7 @@ const INTERVALO_ACTUALIZACION_MS = 20_000;
 const MINUTO_MS = 60_000;
 
 const DESTINO_MODULO: Record<ModuloBitacora, { etiqueta: string; ruta: string }> = {
-  COTIZACIONES: { etiqueta: "Negociación", ruta: RUTAS.cotizaciones },
+  COTIZACIONES: { etiqueta: "Cotizaciones", ruta: RUTAS.cotizaciones },
   "REQUERIMIENTOS LOGISTICA": { etiqueta: "Requerimientos", ruta: RUTAS.requerimientosLogistica },
 };
 

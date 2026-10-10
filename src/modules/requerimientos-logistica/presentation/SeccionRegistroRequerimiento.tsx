@@ -18,14 +18,15 @@ import type { Producto } from "@/modules/catalogo-productos/domain/Producto";
 import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { BotonFirma } from "@/modules/shared/presentation/ui/BotonFirma";
 import { AreaTextoMayusculas, Campo, EntradaTexto, ValorSoloLectura } from "@/modules/shared/presentation/ui/Formulario";
-import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
+import { Insignia, type TonoInsignia } from "@/modules/shared/presentation/ui/Insignia";
 import { useNotificaciones } from "@/modules/shared/presentation/ui/Notificaciones";
 import { Selector } from "@/modules/shared/presentation/ui/Selector";
 import { EstadoVacio, TarjetaSeccion } from "@/modules/shared/presentation/ui/Superficies";
-import { AREAS, MESES, type Disponibilidad } from "../domain/valores";
+import { AREAS, DISPONIBILIDADES, MESES, type Disponibilidad } from "../domain/valores";
 import { BuscadorProducto } from "./BuscadorProducto";
-import { SelectorDisponibilidad } from "./SelectorDisponibilidad";
 import type { useFormularioRequerimiento } from "./useFormularioRequerimiento";
+
+const TONOS_DISPONIBILIDAD = { SI: "exito", NO: "peligro" } as const satisfies Record<Disponibilidad, TonoInsignia>;
 
 interface PropsSeccionRegistro {
   formulario: ReturnType<typeof useFormularioRequerimiento>;
@@ -60,7 +61,7 @@ export function SeccionRegistroRequerimiento({ formulario, preparandoVistaPrevia
   return (
     <TarjetaSeccion
       icono={<HiOutlineClipboardDocumentList />}
-      titulo="Registro de requerimientos"
+      titulo="Registro requerimientos"
       subtitulo="Control mensual de stock"
     >
       <AnimatePresence initial={false}>
@@ -165,7 +166,16 @@ export function SeccionRegistroRequerimiento({ formulario, preparandoVistaPrevia
             )}
           </Campo>
           <Campo etiqueta="Disponible" className="md:col-span-3 xl:col-span-2">
-            {(id) => <SelectorDisponibilidad id={id} valor={disponible} alCambiar={setDisponible} />}
+            {(id) => (
+              <Selector
+                id={id}
+                valor={disponible}
+                opciones={DISPONIBILIDADES}
+                tonos={TONOS_DISPONIBILIDAD}
+                marcador="SI / NO"
+                alCambiar={setDisponible}
+              />
+            )}
           </Campo>
           <div className="md:col-span-3 xl:col-span-2">
             <Boton variante="primario" icono={<HiOutlinePlus />} disabled={!puedeAgregar} onClick={agregar} anchoCompleto>

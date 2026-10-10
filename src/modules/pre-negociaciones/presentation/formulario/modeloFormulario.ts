@@ -125,8 +125,8 @@ export function convertirAGuardar(formulario: FormularioPreNegociacion): Resulta
   if (formulario.puerto.trim() === "") errores.push("Indique el PUERTO.");
   if (formulario.registradoPor.trim() === "") errores.push("Ingrese REGISTRADO POR.");
   formulario.cotizaciones.forEach((cotizacion, indice) => {
-    if (cotizacion.proveedor.trim() === "") errores.push(`Ingrese el PROVEEDOR de la negociación ${indice + 1}.`);
-    if (cotizacion.productos.trim() === "") errores.push(`Ingrese los PRODUCTOS de la negociación ${indice + 1}.`);
+    if (cotizacion.proveedor.trim() === "") errores.push(`Ingrese el PROVEEDOR de la cotización ${indice + 1}.`);
+    if (cotizacion.productos.trim() === "") errores.push(`Ingrese los PRODUCTOS de la cotización ${indice + 1}.`);
     cotizacion.contactos.forEach((contacto, indiceContacto) => {
       if (contacto.fecha.tipo === "editable" && contacto.fecha.valorLocal === "") {
         errores.push(`Ingrese la fecha del contacto ${indiceContacto + 1} de la cotización ${indice + 1}.`);

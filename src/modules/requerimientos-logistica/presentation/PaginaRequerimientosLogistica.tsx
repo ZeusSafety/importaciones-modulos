@@ -228,7 +228,7 @@ export function PaginaRequerimientosLogistica() {
       <Aparicion orden={0}>
         <EncabezadoPagina
           icono={<HiOutlineClipboardDocumentCheck />}
-          titulo="Requerimientos Importación"
+          titulo="Requerimientos Logística"
           descripcion="Registre el control mensual de stock y genere el formato REG_LOG en PDF."
           acciones={
             <>

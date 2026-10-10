@@ -37,7 +37,7 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
             <HiOutlineBuildingStorefront className="h-5 w-5" />
           </span>
           <div>
-            <p className="font-display text-sm font-bold text-slate-900">Negociación {numero}</p>
+            <p className="font-display text-sm font-bold text-slate-900">Cotización {numero}</p>
             <p className="text-[11px] text-slate-500">{cotizacion.contactos.length} contacto(s) registrados</p>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
           </div>
           <button
             type="button"
-            aria-label={`Quitar negociación ${numero}`}
+            aria-label={`Quitar cotización ${numero}`}
             onClick={() => despachar({ tipo: "quitarCotizacion", cotizacionId })}
             className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
           >
@@ -114,7 +114,7 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
             icono={<HiOutlinePlus />}
             onClick={() => despachar({ tipo: "agregarContacto", cotizacionId })}
           >
-            Añadir contacto
+            Añadir
           </Boton>
         </div>
       </div>

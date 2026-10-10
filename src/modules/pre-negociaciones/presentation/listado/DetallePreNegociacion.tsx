@@ -101,7 +101,7 @@ export function DetallePreNegociacion({ preNegociacion: p, alEditar, alDuplicar,
 
         {p.cotizaciones.length > 0 && (
           <section>
-            <TituloBloque>Negociaciones y contactos</TituloBloque>
+            <TituloBloque>Proveedores, contactos y archivos</TituloBloque>
             <CarruselProveedores key={p.id} cotizaciones={p.cotizaciones} />
           </section>
         )}

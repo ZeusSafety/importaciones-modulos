@@ -77,8 +77,8 @@ export function PaginaCotizaciones() {
       <Aparicion orden={0}>
         <EncabezadoPagina
           icono={<HiOutlineDocumentCurrencyDollar />}
-          titulo="Negociación"
-          descripcion="Negociaciones con proveedores: tipo de carga, contactos, archivos y estados."
+          titulo="Cotizaciones"
+          descripcion="Cotizaciones con proveedores: tipo de carga, contactos, archivos y estados."
           acciones={
             <>
               <BotonDescarga

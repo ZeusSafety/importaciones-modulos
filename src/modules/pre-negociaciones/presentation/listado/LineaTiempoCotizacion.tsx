@@ -22,7 +22,7 @@ export function LineaTiempoCotizacion({ cotizacion, numero }: { cotizacion: Coti
           {numero}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Negociación {numero}</p>
+          <p className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Cotización {numero}</p>
           <div className="flex min-w-0 items-baseline gap-2">
             <p className="truncate font-display text-sm font-bold text-slate-900">{cotizacion.proveedor}</p>
             {cotizacion.productos ? (

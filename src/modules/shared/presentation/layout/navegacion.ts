@@ -34,10 +34,10 @@ export const SECCIONES_NAVEGACION: readonly SeccionNavegacion[] = [
     enlaces: [
       {
         ruta: RUTAS.requerimientosLogistica,
-        etiqueta: "Requerimientos Importación",
+        etiqueta: "Requerimientos Logística",
         icono: HiOutlineClipboardDocumentCheck,
       },
-      { ruta: RUTAS.cotizaciones, etiqueta: "Negociación", icono: HiOutlineDocumentCurrencyDollar },
+      { ruta: RUTAS.cotizaciones, etiqueta: "Cotizaciones", icono: HiOutlineDocumentCurrencyDollar },
       { ruta: RUTAS.tablero, etiqueta: "Tablero Kanban", icono: HiOutlineViewColumns },
     ],
   },

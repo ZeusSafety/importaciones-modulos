@@ -77,7 +77,7 @@ function BotonFlecha({
       type="button"
       onClick={alPulsar}
       disabled={deshabilitado}
-      aria-label={direccion === "anterior" ? "Ver la negociación anterior" : "Ver la negociación siguiente"}
+      aria-label={direccion === "anterior" ? "Ver la cotización anterior" : "Ver la cotización siguiente"}
       className="mt-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-superficie text-zeus-tinta shadow-sm transition hover:border-zeus-azul/40 hover:bg-zeus-celeste disabled:pointer-events-none disabled:opacity-30"
     >
       <Icono className="h-5 w-5" />
