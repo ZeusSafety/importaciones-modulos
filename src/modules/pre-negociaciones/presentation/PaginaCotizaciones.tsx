@@ -27,7 +27,7 @@ export function PaginaCotizaciones() {
   const notificar = useNotificaciones();
   const { estado, recargar } = useConsulta(apiPreNegociaciones.listar);
   const [seleccionadaId, setSeleccionadaId] = useState<string | null>(null);
-  const [enTabla, setEnTabla] = useState(false);
+  const [enTabla, setEnTabla] = useState(true);
   const [filtros, setFiltros] = useState<FiltrosPreNegociaciones>(FILTROS_INICIALES);
   const [modo, setModo] = useState<ModoFormulario | null>(null);
   const [abriendoRegistro, setAbriendoRegistro] = useState(false);

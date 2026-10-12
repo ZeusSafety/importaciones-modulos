@@ -12,6 +12,16 @@ import type { CotizacionFormulario } from "./modeloFormulario";
 import { TarjetaContacto } from "./TarjetaContacto";
 import type { DespacharFormulario } from "./useFormularioPreNegociacion";
 
+/** Tonos suaves que se van turnando para distinguir una cotización de la siguiente. */
+const TONOS_COTIZACION = [
+  { borde: "border-zeus-azul/15", fondo: "from-zeus-celeste/50", icono: "bg-zeus-azul shadow-zeus-azul/25", titulo: "text-slate-900" },
+  { borde: "border-[#0f766e]/25", fondo: "from-[#ccfbf1]/70 dark:from-[#0f766e]/20", icono: "bg-[#0f766e] shadow-[#0f766e]/25", titulo: "text-[#0f766e] dark:text-[#5eead4]" },
+  { borde: "border-[#b45309]/25", fondo: "from-[#fef3c7]/70 dark:from-[#b45309]/20", icono: "bg-[#b45309] shadow-[#b45309]/25", titulo: "text-[#b45309] dark:text-[#fcd34d]" },
+  { borde: "border-[#6d28d9]/25", fondo: "from-[#ede9fe]/70 dark:from-[#6d28d9]/20", icono: "bg-[#6d28d9] shadow-[#6d28d9]/25", titulo: "text-[#6d28d9] dark:text-[#c4b5fd]" },
+  { borde: "border-[#be123c]/20", fondo: "from-[#ffe4e6]/70 dark:from-[#be123c]/20", icono: "bg-[#be123c] shadow-[#be123c]/25", titulo: "text-[#be123c] dark:text-[#fda4af]" },
+  { borde: "border-[#0369a1]/25", fondo: "from-[#e0f2fe]/70 dark:from-[#0369a1]/20", icono: "bg-[#0369a1] shadow-[#0369a1]/25", titulo: "text-[#0369a1] dark:text-[#7dd3fc]" },
+] as const;
+
 interface PropsTarjetaCotizacion {
   cotizacion: CotizacionFormulario;
   numero: number;
@@ -21,6 +31,7 @@ interface PropsTarjetaCotizacion {
 
 export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar }: PropsTarjetaCotizacion) {
   const cotizacionId = cotizacion.id;
+  const tono = TONOS_COTIZACION[(numero - 1) % TONOS_COTIZACION.length]!;
 
   return (
     <motion.article
@@ -29,15 +40,15 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, x: -24, transition: { duration: 0.2 } }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="overflow-hidden rounded-2xl border border-zeus-azul/15 bg-gradient-to-b from-zeus-celeste/50 to-superficie shadow-sm"
+      className={`overflow-hidden rounded-2xl border bg-gradient-to-b to-superficie shadow-sm ${tono.borde} ${tono.fondo}`}
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zeus-azul/10 bg-superficie/70 px-4 py-3">
+      <header className={`flex flex-wrap items-center justify-between gap-3 border-b bg-superficie/70 px-4 py-3 ${tono.borde}`}>
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-zeus-azul text-white shadow-md shadow-zeus-azul/25">
+          <span className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md ${tono.icono}`}>
             <HiOutlineBuildingStorefront className="h-5 w-5" />
           </span>
           <div>
-            <p className="font-display text-sm font-bold text-slate-900">Cotización {numero}</p>
+            <p className={`font-display text-sm font-bold ${tono.titulo}`}>Cotización {numero}</p>
             <p className="text-[11px] text-slate-500">{cotizacion.contactos.length} contacto(s) registrados</p>
           </div>
         </div>
