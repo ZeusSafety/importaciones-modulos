@@ -19,9 +19,11 @@ interface PropsPanelFiltros {
   paisesAdicionales: readonly string[];
   /** En el tablero las columnas ya separan por estado. */
   sinEstado?: boolean;
+  /** Texto del buscador. En el tablero se mantiene el de proveedores. */
+  placeholderBusqueda?: string;
 }
 
-export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicionales, sinEstado = false }: PropsPanelFiltros) {
+export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicionales, sinEstado = false, placeholderBusqueda = "Producto, proveedor, puerto…" }: PropsPanelFiltros) {
   const cambiar = <K extends keyof FiltrosPreNegociaciones>(clave: K, valor: FiltrosPreNegociaciones[K]) => alCambiar({ ...filtros, [clave]: valor });
 
   return (
@@ -42,7 +44,7 @@ export function PanelFiltrosPreNegociaciones({ filtros, alCambiar, paisesAdicion
                 valor={filtros.busqueda}
                 alCambiar={(valor) => cambiar("busqueda", valor)}
                 mayusculas={false}
-                placeholder="Producto, proveedor, puerto…"
+                placeholder={placeholderBusqueda}
                 autoComplete="off"
                 style={{ paddingLeft: "2.25rem" }}
               />

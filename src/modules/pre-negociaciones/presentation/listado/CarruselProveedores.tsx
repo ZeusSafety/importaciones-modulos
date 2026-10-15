@@ -24,7 +24,15 @@ function useTarjetasVisibles(total: number): number {
   return visibles;
 }
 
-export function CarruselProveedores({ cotizaciones }: { cotizaciones: readonly CotizacionDto[] }) {
+export function CarruselProveedores({
+  cotizaciones,
+  etiqueta,
+  etiquetaPlural,
+}: {
+  cotizaciones: readonly CotizacionDto[];
+  etiqueta: string;
+  etiquetaPlural: string;
+}) {
   const visibles = useTarjetasVisibles(cotizaciones.length);
   const [inicio, setInicio] = useState(0);
   const maxInicio = Math.max(0, cotizaciones.length - visibles);
@@ -44,7 +52,7 @@ export function CarruselProveedores({ cotizaciones }: { cotizaciones: readonly C
 
   return (
     <div className="flex items-stretch gap-2">
-      <BotonDeslizar direccion="anterior" deshabilitado={inicioVisible === 0} alPulsar={() => mover(-1)} />
+      <BotonDeslizar direccion="anterior" etiquetaPlural={etiquetaPlural} deshabilitado={inicioVisible === 0} alPulsar={() => mover(-1)} />
       <div className="min-w-0 flex-1 overflow-hidden">
         <motion.div
           className="flex"
@@ -59,20 +67,22 @@ export function CarruselProveedores({ cotizaciones }: { cotizaciones: readonly C
           ))}
         </motion.div>
         <p className="mt-2 text-center text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-          {desde === hasta ? `Proveedor ${desde}` : `Proveedores ${desde}–${hasta}`} de {cotizaciones.length}
+          {desde === hasta ? `${etiqueta} ${desde}` : `${etiquetaPlural} ${desde}–${hasta}`} de {cotizaciones.length}
         </p>
       </div>
-      <BotonDeslizar direccion="siguiente" deshabilitado={inicioVisible === maxInicio} alPulsar={() => mover(1)} />
+      <BotonDeslizar direccion="siguiente" etiquetaPlural={etiquetaPlural} deshabilitado={inicioVisible === maxInicio} alPulsar={() => mover(1)} />
     </div>
   );
 }
 
 function BotonDeslizar({
   direccion,
+  etiquetaPlural,
   deshabilitado,
   alPulsar,
 }: {
   direccion: "anterior" | "siguiente";
+  etiquetaPlural: string;
   deshabilitado: boolean;
   alPulsar: () => void;
 }) {
@@ -82,7 +92,7 @@ function BotonDeslizar({
       type="button"
       onClick={alPulsar}
       disabled={deshabilitado}
-      aria-label={direccion === "anterior" ? "Ver proveedores anteriores" : "Ver proveedores siguientes"}
+      aria-label={direccion === "anterior" ? `Ver ${etiquetaPlural.toLowerCase()} anteriores` : `Ver ${etiquetaPlural.toLowerCase()} siguientes`}
       className="mt-16 flex h-10 w-10 shrink-0 items-center justify-center self-start rounded-full border border-slate-300 bg-superficie text-zeus-tinta shadow-sm transition hover:border-zeus-azul/40 hover:bg-zeus-celeste disabled:pointer-events-none disabled:opacity-30"
     >
       <Icono className="h-5 w-5" />

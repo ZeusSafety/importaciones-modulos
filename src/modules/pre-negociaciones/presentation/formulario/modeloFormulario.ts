@@ -8,6 +8,7 @@ import {
   type EstadoPreNegociacion,
   type TipoCarga,
 } from "../../domain/valores";
+import { configuracionVista, type VistaCotizacion } from "../../domain/vistasCotizacion";
 
 export type FechaContactoFormulario =
   | { readonly tipo: "automatica"; readonly registrada: string | null }
@@ -117,7 +118,8 @@ type ResultadoConversion =
   | { readonly valido: true; readonly datos: GuardarPreNegociacionDto }
   | { readonly valido: false; readonly errores: string[] };
 
-export function convertirAGuardar(formulario: FormularioPreNegociacion): ResultadoConversion {
+export function convertirAGuardar(formulario: FormularioPreNegociacion, vista: VistaCotizacion): ResultadoConversion {
+  const config = configuracionVista(vista);
   const errores: string[] = [];
   if (formulario.tipoCarga === "") errores.push("Seleccione el TIPO DE CARGA.");
   if (formulario.productos.trim() === "") errores.push("Ingrese los PRODUCTOS.");
@@ -125,7 +127,9 @@ export function convertirAGuardar(formulario: FormularioPreNegociacion): Resulta
   if (formulario.puerto.trim() === "") errores.push("Indique el PUERTO.");
   if (formulario.registradoPor.trim() === "") errores.push("Ingrese REGISTRADO POR.");
   formulario.cotizaciones.forEach((cotizacion, indice) => {
-    if (cotizacion.proveedor.trim() === "") errores.push(`Ingrese el PROVEEDOR de la cotización ${indice + 1}.`);
+    if (cotizacion.proveedor.trim() === "") {
+      errores.push(`Ingrese ${config.articulo} ${config.contraparte.toUpperCase()} de la cotización ${indice + 1}.`);
+    }
     if (cotizacion.productos.trim() === "") errores.push(`Ingrese los PRODUCTOS de la cotización ${indice + 1}.`);
     cotizacion.contactos.forEach((contacto, indiceContacto) => {
       if (contacto.fecha.tipo === "editable" && contacto.fecha.valorLocal === "") {
@@ -138,6 +142,7 @@ export function convertirAGuardar(formulario: FormularioPreNegociacion): Resulta
   return {
     valido: true,
     datos: {
+      vista,
       tipoCarga: formulario.tipoCarga,
       productos: formulario.productos.trim(),
       pais: formulario.pais,

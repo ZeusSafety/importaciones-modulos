@@ -6,6 +6,7 @@ import { HiOutlineChevronLeft, HiOutlineChevronRight } from "react-icons/hi2";
 import type { CotizacionFormulario } from "./modeloFormulario";
 import { TarjetaCotizacion } from "./TarjetaCotizacion";
 import type { DespacharFormulario } from "./useFormularioPreNegociacion";
+import type { VistaCotizacion } from "../../domain/vistasCotizacion";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -17,10 +18,11 @@ function estaEnBlanco(cotizacion: CotizacionFormulario): boolean {
 interface PropsCarruselNegociaciones {
   cotizaciones: readonly CotizacionFormulario[];
   registradoPor: string;
+  vista: VistaCotizacion;
   despachar: DespacharFormulario;
 }
 
-export function CarruselNegociaciones({ cotizaciones, registradoPor, despachar }: PropsCarruselNegociaciones) {
+export function CarruselNegociaciones({ cotizaciones, registradoPor, vista, despachar }: PropsCarruselNegociaciones) {
   const [indice, setIndice] = useState(0);
   const cantidadAnterior = useRef(cotizaciones.length);
   const ultimo = Math.max(0, cotizaciones.length - 1);
@@ -97,6 +99,7 @@ export function CarruselNegociaciones({ cotizaciones, registradoPor, despachar }
                   cotizacion={cotizacion}
                   numero={numero + 1}
                   registradoPor={registradoPor}
+                  vista={vista}
                   despachar={despachar}
                 />
               </div>

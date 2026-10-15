@@ -39,10 +39,11 @@ function quitar(actual: string, nombre: string): string {
 
 interface PropsCampoProductos {
   valor: string;
+  contraparte: string;
   alCambiar: (valor: string) => void;
 }
 
-export function CampoProductosProveedor({ valor, alCambiar }: PropsCampoProductos) {
+export function CampoProductosProveedor({ valor, contraparte, alCambiar }: PropsCampoProductos) {
   const [abierto, setAbierto] = useState(false);
   const [sugerencias, setSugerencias] = useState<Producto[]>([]);
   const [coincidencias, setCoincidencias] = useState<Producto[]>([]);
@@ -93,7 +94,10 @@ export function CampoProductosProveedor({ valor, alCambiar }: PropsCampoProducto
   }, [valor]);
 
   return (
-    <Campo etiqueta="Productos" ayuda="Escriba los productos que negocia con este proveedor. Si están en el catálogo, se reconocen.">
+    <Campo
+      etiqueta="Productos"
+      ayuda={`Escriba los productos que negocia con ${contraparte.toLowerCase().startsWith("agencia") ? "la" : "el"} ${contraparte.toLowerCase()}. Si están en el catálogo, se reconocen.`}
+    >
       {(id) => (
         <div className="relative">
           <HiOutlineCube className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-zeus-tinta/70" />

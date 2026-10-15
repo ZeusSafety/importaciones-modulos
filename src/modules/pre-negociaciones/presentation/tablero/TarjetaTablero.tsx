@@ -5,6 +5,7 @@ import { HiOutlineBuildingOffice2, HiOutlineChatBubbleLeftRight, HiOutlineCube }
 import { formatearFecha } from "@/modules/shared/domain/fechas";
 import type { PreNegociacionDto } from "../../application/dto";
 import { etiquetaPreNegociacion, type EstadoPreNegociacion } from "../../domain/valores";
+import { configuracionVista, vistaDe } from "../../domain/vistasCotizacion";
 import { BanderaPais } from "../BanderaPais";
 import { COLUMNAS_TABLERO } from "./columnasTablero";
 import { MenuTarjeta } from "./MenuTarjeta";
@@ -103,7 +104,7 @@ export function TarjetaTablero({ preNegociacion: p, moviendo, alAbrir, alMover, 
 
           <footer className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5 text-[11px] text-slate-500">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1" title="Proveedores">
+              <span className="flex items-center gap-1" title={configuracionVista(vistaDe(p)).contrapartePlural}>
                 <HiOutlineBuildingOffice2 className="h-3.5 w-3.5" />
                 {proveedores.length}
               </span>

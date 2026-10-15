@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { PaginaCotizaciones } from "@/modules/pre-negociaciones/presentation/PaginaCotizaciones";
-
-export const metadata: Metadata = { title: "Cotizaciones" };
+import { redirect } from "next/navigation";
+import { configuracionVista } from "@/modules/pre-negociaciones/domain/vistasCotizacion";
 
 export default function Pagina() {
-  return <PaginaCotizaciones />;
+  redirect(configuracionVista("proveedores").ruta);
 }

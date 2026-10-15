@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { PreNegociacionPrimitivos } from "../domain/PreNegociacion";
 import { ESTADOS_COTIZACION, ESTADOS_PRE_NEGOCIACION, TIPOS_CARGA } from "../domain/valores";
+import { IDS_VISTA_COTIZACION } from "../domain/vistasCotizacion";
 
 const esquemaContacto = z.object({
   id: z.uuid(),
@@ -18,6 +19,7 @@ const esquemaCotizacion = z.object({
 });
 
 export const esquemaGuardarPreNegociacion = z.object({
+  vista: z.enum(IDS_VISTA_COTIZACION).default("proveedores"),
   tipoCarga: z.enum(TIPOS_CARGA),
   productos: z.string(),
   pais: z.string(),

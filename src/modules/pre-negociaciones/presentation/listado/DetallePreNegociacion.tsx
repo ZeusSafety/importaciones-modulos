@@ -15,6 +15,7 @@ import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { Insignia } from "@/modules/shared/presentation/ui/Insignia";
 import type { PreNegociacionDto } from "../../application/dto";
 import { etiquetaPreNegociacion } from "../../domain/valores";
+import { configuracionVista, vistaDe } from "../../domain/vistasCotizacion";
 import { BanderaPais } from "../BanderaPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
 import { CarruselProveedores } from "./CarruselProveedores";
@@ -42,6 +43,7 @@ interface PropsDetalle {
 }
 
 export function DetallePreNegociacion({ preNegociacion: p, alEditar, alDuplicar, duplicando = false }: PropsDetalle) {
+  const config = configuracionVista(vistaDe(p));
   return (
     <div className="flex h-full flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
@@ -101,8 +103,8 @@ export function DetallePreNegociacion({ preNegociacion: p, alEditar, alDuplicar,
 
         {p.cotizaciones.length > 0 && (
           <section>
-            <TituloBloque>Proveedores, contactos y archivos</TituloBloque>
-            <CarruselProveedores key={p.id} cotizaciones={p.cotizaciones} />
+            <TituloBloque>{config.contrapartePlural}, contactos y archivos</TituloBloque>
+            <CarruselProveedores key={p.id} cotizaciones={p.cotizaciones} etiqueta={config.contraparte} etiquetaPlural={config.contrapartePlural} />
           </section>
         )}
       </div>

@@ -6,6 +6,7 @@ import { Boton } from "@/modules/shared/presentation/ui/Boton";
 import { Campo, EntradaTexto } from "@/modules/shared/presentation/ui/Formulario";
 import { Selector } from "@/modules/shared/presentation/ui/Selector";
 import { ESTADOS_COTIZACION } from "../../domain/valores";
+import { configuracionVista, type VistaCotizacion } from "../../domain/vistasCotizacion";
 import { TONO_ESTADO_COTIZACION } from "../tonosEstado";
 import { CampoProductosProveedor } from "./CampoProductosProveedor";
 import type { CotizacionFormulario } from "./modeloFormulario";
@@ -26,12 +27,14 @@ interface PropsTarjetaCotizacion {
   cotizacion: CotizacionFormulario;
   numero: number;
   registradoPor: string;
+  vista: VistaCotizacion;
   despachar: DespacharFormulario;
 }
 
-export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar }: PropsTarjetaCotizacion) {
+export function TarjetaCotizacion({ cotizacion, numero, registradoPor, vista, despachar }: PropsTarjetaCotizacion) {
   const cotizacionId = cotizacion.id;
-  const tono = TONOS_COTIZACION[(numero - 1) % TONOS_COTIZACION.length]!;
+  const tono = TONOS_COTIZACION[(numero - 1) % TONOS_COTIZACION.length] ?? TONOS_COTIZACION[0];
+  const config = configuracionVista(vista);
 
   return (
     <motion.article
@@ -76,18 +79,19 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, despachar
 
       <div className="space-y-4 p-4">
         <div className="grid gap-4 md:grid-cols-2">
-          <Campo etiqueta="Proveedor">
+          <Campo etiqueta={config.contraparte}>
             {(id) => (
               <EntradaTexto
                 id={id}
                 mayusculas
                 valor={cotizacion.proveedor}
                 alCambiar={(valor) => despachar({ tipo: "proveedor", cotizacionId, valor })}
-                placeholder="NOMBRE DEL PROVEEDOR"
+                placeholder={config.placeholder}
               />
             )}
           </Campo>
           <CampoProductosProveedor
+            contraparte={config.contraparte}
             valor={cotizacion.productos}
             alCambiar={(valor) => despachar({ tipo: "productosProveedor", cotizacionId, valor })}
           />

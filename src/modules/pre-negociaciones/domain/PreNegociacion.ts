@@ -4,6 +4,7 @@ import { textoMayusculasOpcional, textoMayusculasRequerido } from "@/modules/sha
 import { validarOrigen } from "./origenesImportacion";
 import { etiquetaContacto, fechaContactoEditable } from "./reglasContacto";
 import type { EstadoCotizacion, EstadoPreNegociacion, TipoCarga } from "./valores";
+import { configuracionVista, vistaDe, type VistaCotizacion } from "./vistasCotizacion";
 
 export interface ArchivoContacto {
   readonly id: string;
@@ -34,6 +35,8 @@ export interface CotizacionPrimitivos {
 export interface PreNegociacionPrimitivos {
   readonly id: string;
   readonly numero: number;
+  /** Ausente en registros anteriores: se leen como cotizaciones de proveedores. */
+  readonly vista?: VistaCotizacion;
   readonly tipoCarga: TipoCarga;
   readonly productos: string;
   /** País del catálogo o uno ingresado libremente desde «OTROS». */
@@ -63,6 +66,7 @@ export interface DatosCotizacion {
 }
 
 export interface DatosPreNegociacion {
+  readonly vista: VistaCotizacion;
   readonly tipoCarga: TipoCarga;
   readonly productos: string;
   readonly pais: string;
@@ -101,6 +105,7 @@ function construirCotizaciones(
   datos: DatosCotizacion[],
   anteriores: CotizacionPrimitivos[],
   ahora: string,
+  vista: VistaCotizacion,
 ): CotizacionPrimitivos[] {
   validarIdsUnicos(
     datos.map((c) => c.id),
@@ -121,7 +126,10 @@ function construirCotizaciones(
     }
     return {
       id: cotizacion.id,
-      proveedor: textoMayusculasRequerido(`PROVEEDOR de la cotización ${indiceCotizacion + 1}`, cotizacion.proveedor),
+      proveedor: textoMayusculasRequerido(
+        `${configuracionVista(vista).contraparte.toUpperCase()} de la cotización ${indiceCotizacion + 1}`,
+        cotizacion.proveedor,
+      ),
       productos: textoMayusculasRequerido(`PRODUCTOS de la cotización ${indiceCotizacion + 1}`, cotizacion.productos),
       estado: cotizacion.estado,
       contactos: cotizacion.contactos.map((contacto, indiceContacto) => {
@@ -140,6 +148,7 @@ function construirCotizaciones(
 
 function normalizarCabecera(datos: DatosPreNegociacion) {
   return {
+    vista: datos.vista,
     tipoCarga: datos.tipoCarga,
     productos: textoMayusculasRequerido("PRODUCTOS", datos.productos),
     ...validarOrigen(datos.pais, datos.puerto),
@@ -162,7 +171,7 @@ export class PreNegociacion {
       id: identidad.id,
       numero: identidad.numero,
       ...normalizarCabecera(datos),
-      cotizaciones: construirCotizaciones(datos.cotizaciones, [], identidad.ahora),
+      cotizaciones: construirCotizaciones(datos.cotizaciones, [], identidad.ahora, datos.vista),
       creadoEn: identidad.ahora,
       actualizadoEn: identidad.ahora,
     });
@@ -171,6 +180,7 @@ export class PreNegociacion {
   static desdePrimitivos(primitivos: PreNegociacionPrimitivos): PreNegociacion {
     return new PreNegociacion({
       ...primitivos,
+      vista: vistaDe(primitivos),
       cotizaciones: primitivos.cotizaciones.map((cotizacion) => ({
         ...cotizacion,
         productos: typeof cotizacion.productos === "string" ? cotizacion.productos : "",
@@ -186,7 +196,7 @@ export class PreNegociacion {
     return new PreNegociacion({
       ...this.estado,
       ...normalizarCabecera(datos),
-      cotizaciones: construirCotizaciones(datos.cotizaciones, this.estado.cotizaciones, ahora),
+      cotizaciones: construirCotizaciones(datos.cotizaciones, this.estado.cotizaciones, ahora, datos.vista),
       actualizadoEn: ahora,
     });
   }

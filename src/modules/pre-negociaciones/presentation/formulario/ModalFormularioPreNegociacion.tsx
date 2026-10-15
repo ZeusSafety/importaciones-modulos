@@ -21,6 +21,7 @@ import type { PreNegociacionDto } from "../../application/dto";
 import { esPaisImportacion, puertosDe } from "../../domain/origenesImportacion";
 import { PreNegociacion, type DatosPreNegociacion } from "../../domain/PreNegociacion";
 import { ESTADOS_PRE_NEGOCIACION, etiquetaPreNegociacion, TIPOS_CARGA } from "../../domain/valores";
+import { configuracionVista, vistaDe, type VistaCotizacion } from "../../domain/vistasCotizacion";
 import { apiPreNegociaciones, esPreNegociacionLocal, guardarPreNegociacionLocal } from "../apiPreNegociaciones";
 import { SelectorPais } from "../SelectorPais";
 import { TONO_ESTADO_PRE_NEGOCIACION } from "../tonosEstado";
@@ -29,15 +30,18 @@ import { convertirAGuardar, formularioDesde, formularioDuplicado, formularioVaci
 import { useFormularioPreNegociacion } from "./useFormularioPreNegociacion";
 
 export type ModoFormulario =
-  | { readonly tipo: "registro"; readonly apertura: number; readonly numero: number }
+  | { readonly tipo: "registro"; readonly apertura: number; readonly numero: number; readonly vista: VistaCotizacion }
   /** Registro nuevo que parte de una copia editable de `origen`. */
-  | { readonly tipo: "duplicado"; readonly apertura: number; readonly numero: number; readonly origen: PreNegociacionDto }
+  | { readonly tipo: "duplicado"; readonly apertura: number; readonly numero: number; readonly vista: VistaCotizacion; readonly origen: PreNegociacionDto }
   | { readonly tipo: "edicion"; readonly apertura: number; readonly preNegociacion: PreNegociacionDto };
 
-/** Modo para un registro nuevo; con `origen` arranca como copia editable. */
-export function modoNuevoRegistro(numero: number, origen?: PreNegociacionDto): ModoFormulario {
+/** Modo para un registro nuevo; con `origen` arranca como copia editable de esa misma vista. */
+export function modoNuevoRegistro(numero: number, origen?: PreNegociacionDto, vista?: VistaCotizacion): ModoFormulario {
   const apertura = Date.now();
-  return origen ? { tipo: "duplicado", apertura, numero, origen } : { tipo: "registro", apertura, numero };
+  const vistaRegistro = vista ?? (origen ? vistaDe(origen) : "proveedores");
+  return origen
+    ? { tipo: "duplicado", apertura, numero, vista: vistaRegistro, origen }
+    : { tipo: "registro", apertura, numero, vista: vistaRegistro };
 }
 
 function formularioInicial(modo: ModoFormulario) {
@@ -87,6 +91,8 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
 
   const esNueva = modo.tipo !== "edicion";
   const numero = modo.tipo === "edicion" ? modo.preNegociacion.numero : modo.numero;
+  const vista = modo.tipo === "edicion" ? vistaDe(modo.preNegociacion) : modo.vista;
+  const config = configuracionVista(vista);
   const etiqueta = etiquetaPreNegociacion(numero);
   const tituloExito = esNueva ? "Pre-negociación registrada" : "Cambios guardados";
 
@@ -98,6 +104,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
   const guardarEnNavegador = () => {
     if (formulario.tipoCarga === "") return null;
     const datos: DatosPreNegociacion = {
+      vista,
       tipoCarga: formulario.tipoCarga,
       productos: formulario.productos,
       pais: formulario.pais,
@@ -128,7 +135,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
   };
 
   const guardar = async () => {
-    const conversion = convertirAGuardar(formulario);
+    const conversion = convertirAGuardar(formulario, vista);
     if (!conversion.valido) {
       notificar({ tipo: "error", titulo: "Revise el formulario", mensaje: conversion.errores.join(" ") });
       return;
@@ -197,7 +204,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
             ? `Duplicar ${etiquetaPreNegociacion(modo.origen.numero)}`
             : `Editar ${etiqueta}`
       }
-      subtitulo="Complete los datos generales, añada la cotización de cada proveedor y guarde."
+      subtitulo={`Complete los datos generales, añada la cotización de cada ${config.contraparte.toLowerCase()} y guarde.`}
       icono={modo.tipo === "duplicado" ? <HiOutlineDocumentDuplicate /> : <HiOutlineDocumentCurrencyDollar />}
       tamano="completo"
       pie={
@@ -221,7 +228,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
               <p className="font-display text-sm font-semibold text-slate-900">
                 Copia de {etiquetaPreNegociacion(modo.origen.numero)} · se guardará como {etiqueta}
               </p>
-              Se copiaron los datos generales y los proveedores. El estado, los resultados, los contactos y los archivos empiezan
+              Se copiaron los datos generales y las cotizaciones. El estado, los resultados, los contactos y los archivos empiezan
               de cero. Cambie lo que necesite antes de guardar; la original no se modifica.
             </div>
           </div>
@@ -298,7 +305,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
           {formulario.cotizaciones.length === 0 && (
             <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm text-slate-500">
               <HiOutlineInboxStack className="h-6 w-6 text-slate-400" />
-              Aún no hay cotizaciones. Pulse «Añadir cotizaciones» para registrar un proveedor y sus contactos.
+              Aún no hay cotizaciones. Pulse «Añadir cotizaciones» para registrar {config.articulo === "el" ? "un" : "una"} {config.contraparte.toLowerCase()} y sus contactos.
             </div>
           )}
 
@@ -306,6 +313,7 @@ function FormularioPreNegociacion({ modo, abierto, paisesAdicionales, alCerrar, 
             <CarruselNegociaciones
               cotizaciones={formulario.cotizaciones}
               registradoPor={formulario.registradoPor}
+              vista={vista}
               despachar={despachar}
             />
           )}
