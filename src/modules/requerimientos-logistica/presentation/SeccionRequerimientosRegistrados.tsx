@@ -33,7 +33,7 @@ export function SeccionRequerimientosRegistrados({
   return (
     <TarjetaSeccion
       icono={<HiOutlineInboxStack />}
-      titulo="Requerimientos Logística registrados"
+      titulo="Requerimientos Importaciones registrados"
       subtitulo={`${requerimientos.length} registro(s) · ${pendientes} pendiente(s) de aprobación`}
     >
       {requerimientos.length === 0 ? (

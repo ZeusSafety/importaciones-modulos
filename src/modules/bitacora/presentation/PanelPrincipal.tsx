@@ -125,7 +125,7 @@ export function PanelPrincipal({ panel }: { panel: PanelPrincipalDto }) {
           <TarjetaIndicador
             acento="violeta"
             icono={<HiOutlineClipboardDocumentCheck />}
-            etiqueta="Requerimientos logística"
+            etiqueta="Requerimientos importaciones"
             descripcion="Formatos de logística"
             valor={totales.requerimientos}
             unidad={totales.requerimientos === 1 ? "requerimiento" : "requerimientos"}

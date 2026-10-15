@@ -13,15 +13,21 @@ import type { CotizacionFormulario } from "./modeloFormulario";
 import { TarjetaContacto } from "./TarjetaContacto";
 import type { DespacharFormulario } from "./useFormularioPreNegociacion";
 
-/** Tonos suaves que se van turnando para distinguir una cotización de la siguiente. */
-const TONOS_COTIZACION = [
-  { borde: "border-zeus-azul/15", fondo: "from-zeus-celeste/50", icono: "bg-zeus-azul shadow-zeus-azul/25", titulo: "text-slate-900" },
-  { borde: "border-[#0f766e]/25", fondo: "from-[#ccfbf1]/70 dark:from-[#0f766e]/20", icono: "bg-[#0f766e] shadow-[#0f766e]/25", titulo: "text-[#0f766e] dark:text-[#5eead4]" },
-  { borde: "border-[#b45309]/25", fondo: "from-[#fef3c7]/70 dark:from-[#b45309]/20", icono: "bg-[#b45309] shadow-[#b45309]/25", titulo: "text-[#b45309] dark:text-[#fcd34d]" },
-  { borde: "border-[#6d28d9]/25", fondo: "from-[#ede9fe]/70 dark:from-[#6d28d9]/20", icono: "bg-[#6d28d9] shadow-[#6d28d9]/25", titulo: "text-[#6d28d9] dark:text-[#c4b5fd]" },
-  { borde: "border-[#be123c]/20", fondo: "from-[#ffe4e6]/70 dark:from-[#be123c]/20", icono: "bg-[#be123c] shadow-[#be123c]/25", titulo: "text-[#be123c] dark:text-[#fda4af]" },
-  { borde: "border-[#0369a1]/25", fondo: "from-[#e0f2fe]/70 dark:from-[#0369a1]/20", icono: "bg-[#0369a1] shadow-[#0369a1]/25", titulo: "text-[#0369a1] dark:text-[#7dd3fc]" },
-] as const;
+/** Se turnan solo dos: azul marino de la empresa y la tarjeta normal. */
+const TONO_MARINO = {
+  borde: "border-[#002d5a]/45",
+  fondo: "from-[#b7cbe2] dark:from-[#0b4a8f]/45",
+  icono: "bg-[#002d5a] shadow-[#002d5a]/30",
+  titulo: "text-[#002d5a] dark:text-[#d6e4f5]",
+  cabecera: "border-[#002d5a]/25 bg-[#d5e3f2]/80 dark:bg-[#0b4a8f]/30",
+};
+const TONO_NORMAL = {
+  borde: "border-slate-200",
+  fondo: "from-superficie",
+  icono: "bg-zeus-azul shadow-zeus-azul/25",
+  titulo: "text-slate-900",
+  cabecera: "border-slate-200 bg-superficie",
+};
 
 interface PropsTarjetaCotizacion {
   cotizacion: CotizacionFormulario;
@@ -33,7 +39,7 @@ interface PropsTarjetaCotizacion {
 
 export function TarjetaCotizacion({ cotizacion, numero, registradoPor, vista, despachar }: PropsTarjetaCotizacion) {
   const cotizacionId = cotizacion.id;
-  const tono = TONOS_COTIZACION[(numero - 1) % TONOS_COTIZACION.length] ?? TONOS_COTIZACION[0];
+  const tono = numero % 2 === 1 ? TONO_MARINO : TONO_NORMAL;
   const config = configuracionVista(vista);
 
   return (
@@ -45,7 +51,7 @@ export function TarjetaCotizacion({ cotizacion, numero, registradoPor, vista, de
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className={`overflow-hidden rounded-2xl border bg-gradient-to-b to-superficie shadow-sm ${tono.borde} ${tono.fondo}`}
     >
-      <header className={`flex flex-wrap items-center justify-between gap-3 border-b bg-superficie/70 px-4 py-3 ${tono.borde}`}>
+      <header className={`flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 ${tono.cabecera}`}>
         <div className="flex items-center gap-2.5">
           <span className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md ${tono.icono}`}>
             <HiOutlineBuildingStorefront className="h-5 w-5" />

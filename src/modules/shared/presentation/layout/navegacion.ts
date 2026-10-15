@@ -45,7 +45,7 @@ export const SECCIONES_NAVEGACION: readonly SeccionNavegacion[] = [
     enlaces: [
       {
         ruta: RUTAS.requerimientosLogistica,
-        etiqueta: "Requerimientos Logística",
+        etiqueta: "Requerimientos Importaciones",
         icono: HiOutlineClipboardDocumentCheck,
       },
       {
